@@ -1,8 +1,10 @@
 from typing import Optional
 
 from fastapi import FastAPI
+from routers import context
 
 app = FastAPI()
+app.include_router(context.router)
 
 
 @app.get("/")
