@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from sqlmodel import select
-from models import Item, ItemCreate, ItemRead, ItemUpdate, Attribute, AttributeCreate
+from models import Item, ItemCreate, ItemRead, ItemUpdate, Attribute
 
 from db import get_session
 
@@ -60,23 +60,6 @@ def delete_item(item_id: int, session: Session = Depends(get_session)):
     return item
 
 # Item Attributes endpoints
-@router.post(
-    "/{item_id}/attributes/", response_model=ItemRead
-)
-def add_attribute_to_item(
-    item_id: int, attribute: AttributeCreate, session: Session = Depends(get_session)
-):
-    db_item = session.get(Item, item_id)
-    if not db_item:
-        raise HTTPException(status_code=404, detail="Item not found")
-
-    new_attribute = Attribute(name=attribute.name, value=attribute.value)
-    db_item.attributes.append(new_attribute)
-    session.add(new_attribute)
-    session.commit()
-    session.refresh(db_item)
-    return db_item
-
 
 @router.delete(
     "/{item_id}/attributes/{attribute_id}",
@@ -103,43 +86,11 @@ def remove_attribute_from_item(
     session.refresh(db_item)
     return db_item
 
-
-@router.put(
-    "/{item_id}/attributes/{attribute_id}",
-    response_model=ItemRead,
-)
-def update_item_attribute(
-    item_id: int,
-    attribute_id: int,
-    attribute: AttributeCreate,
-    session: Session = Depends(get_session),
-):
-    db_item = session.get(Item, item_id)
-    if not db_item:
-        raise HTTPException(status_code=404, detail="Item not found")
-
-    db_attribute = session.get(Attribute, attribute_id)
-    if not db_attribute:
-        raise HTTPException(status_code=404, detail="Attribute not found")
-
-    if db_attribute not in db_item.attributes:
-        raise HTTPException(
-            status_code=400, detail="Attribute is not associated with this item"
-        )
-
-    db_attribute.name = attribute.name
-    db_attribute.value = attribute.value
-
-    session.commit()
-    session.refresh(db_item)
-    return db_item
-
-
 @router.post(
     "/{item_id}/attributes/{attribute_id}",
     response_model=ItemRead,
 )
-def add_existing_attribute_to_item(
+def add_attribute_to_item(
     item_id: int, attribute_id: int, session: Session = Depends(get_session)
 ):
     db_item = session.get(Item, item_id)
