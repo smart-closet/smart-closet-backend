@@ -61,7 +61,7 @@ def delete_item(item_id: int, session: Session = Depends(get_session)):
 
 # Item Attributes endpoints
 @router.post(
-    "/{item_id}/attributes/", response_model=ItemRead, tags=["item attributes"]
+    "/{item_id}/attributes/", response_model=ItemRead
 )
 def add_attribute_to_item(
     item_id: int, attribute: AttributeCreate, session: Session = Depends(get_session)
@@ -81,7 +81,6 @@ def add_attribute_to_item(
 @router.delete(
     "/{item_id}/attributes/{attribute_id}",
     response_model=ItemRead,
-    tags=["item attributes"],
 )
 def remove_attribute_from_item(
     item_id: int, attribute_id: int, session: Session = Depends(get_session)
@@ -108,7 +107,6 @@ def remove_attribute_from_item(
 @router.put(
     "/{item_id}/attributes/{attribute_id}",
     response_model=ItemRead,
-    tags=["item attributes"],
 )
 def update_item_attribute(
     item_id: int,
@@ -140,7 +138,6 @@ def update_item_attribute(
 @router.post(
     "/{item_id}/attributes/{attribute_id}",
     response_model=ItemRead,
-    tags=["item attributes"],
 )
 def add_existing_attribute_to_item(
     item_id: int, attribute_id: int, session: Session = Depends(get_session)
