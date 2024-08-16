@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from sqlmodel import select
-from models import Item, ItemCreate, ItemRead, ItemUpdate, Attribute
+from models import Item, ItemCreate, ItemRead, ItemUpdate, Attribute, Category
 
 from db import get_session
 
@@ -13,7 +13,11 @@ router = APIRouter()
 # Item endpoints
 @router.post("/", response_model=ItemRead)
 def create_item(item: ItemCreate, session: Session = Depends(get_session)):
-    db_item = Item(name=item.name, image_url=item.image_url)
+    category = session.get(Category, item.category_id)
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    db_item = Item(name=item.name, image_url=item.image_url, category_id=item.category_id)
     session.add(db_item)
     session.commit()
     session.refresh(db_item)
@@ -42,8 +46,15 @@ def update_item(
     if not db_item:
         raise HTTPException(status_code=404, detail="Item not found")
 
+    if item.category_id is not None:
+        category = session.get(Category, item.category_id)
+        if not category:
+            raise HTTPException(status_code=404, detail="Category not found")
+
     db_item.name = item.name
     db_item.image_url = item.image_url
+    if item.category_id is not None:
+        db_item.category_id = item.category_id
 
     session.commit()
     session.refresh(db_item)
