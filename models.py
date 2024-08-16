@@ -56,16 +56,17 @@ class Item(ItemBase, table=True):
 class ItemRead(ItemBase):
     id: int
     attributes: List[AttributeRead] = []
+    category: CategoryRead
 
 class ItemCreate(ItemBase):
     name: str
     image_url: Optional[str] = Field(default=None)
-    category_id: int  # Added category_id
+    category_id: int
 
 class ItemUpdate(ItemBase):
     name: str
     image_url: Optional[str] = Field(default=None)
-    category_id: Optional[int] = Field(default=None)  # Added category_id
+    category_id: Optional[int] = Field(default=None)
 
 # outfit model
 class OutfitBase(SQLModel):

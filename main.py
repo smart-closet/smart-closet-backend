@@ -5,10 +5,7 @@ from api.main import api_router
 # FastAPI app
 app = FastAPI()
 
-origins = [
-    "http://localhost",
-    "http://localhost:8081",
-]
+origins = ["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
