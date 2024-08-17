@@ -11,7 +11,7 @@ router = APIRouter()
 
 
 # Item endpoints
-@router.post("/", response_model=ItemRead)
+@router.post("/", response_model=ItemCreate)
 def create_item(item: ItemCreate, session: Session = Depends(get_session)):
     category = session.get(Category, item.category_id)
     if not category:

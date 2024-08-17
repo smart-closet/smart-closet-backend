@@ -60,7 +60,7 @@ class ItemRead(ItemBase):
 
 class ItemCreate(ItemBase):
     name: str
-    image_url: Optional[str] = Field(default=None)
+    image_url: str
     category_id: int
 
 class ItemUpdate(ItemBase):
