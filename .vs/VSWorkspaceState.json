@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\api",
+    "\\api\\routes",
+    "\\model_zoo",
+    "\\model_zoo\\feature_classification",
+    "\\service"
+  ],
+  "SelectedNode": "\\api\\routes\\rulebase.py",
+  "PreviewInSolutionExplorer": false
+}
