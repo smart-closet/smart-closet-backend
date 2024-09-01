@@ -5,6 +5,7 @@ from sqlmodel import select
 from models import Item, ItemRead, RuleBaseFilterRequest
 from db import get_session
 from service.rule_base_filter import rule_base_filter
+from service.rank import rank
 
 router = APIRouter()
 
@@ -24,4 +25,12 @@ def ruleBase_filter(
     print("check:::::", result)  ##有成功調用 rule_base 產生出正確的 attribute
     items = session.exec(select(Item)).all()
 
-    return items
+    # 過濾 category_id 為 1 和 2 的項目
+    top = [item.dict() for item in items if item.category.id == 1]
+    bottom = [item.dict() for item in items if item.category.id == 2]
+
+    # 使用 rank 函數
+    ranked_results = rank(top, bottom)
+    print("check:::::", ranked_results)  ##有成功調用 rank 產生出正確的 attribute
+
+    return items  # 確保這裡返回 ranked_results，而不是 items
