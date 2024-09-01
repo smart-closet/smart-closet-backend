@@ -257,8 +257,6 @@ def weather_rule_Base(input_data, personal_temp=0):
 
 
 # 場合篩選
-
-
 def occation_filter(user_occation):
     data = {
         "occation": [],
@@ -329,6 +327,7 @@ def occation_filter(user_occation):
             "long-sleeve button-up shirt",
             "short-sleeve button-up shirt",
             "cotton-pants",
+            "skirt",
         ],
     }
     occation_cloth_textrue = {
@@ -414,35 +413,30 @@ def occation_filter(user_occation):
 
 
 def rule_base_filter(
-    city, place, consider_weather=True, user_occation=None, personal_temp=0
+    city, place, consider_weather=True, user_occation=None
 ):
     # 如果只考量天氣不考慮環境
     if consider_weather is True and user_occation is None:
         weather_info = getWeatherData(city, place)
         candidate = weather_rule_Base(weather_info)
+    
     # 只考量場合不考慮天氣 (不想考慮 or 室內)
     elif (consider_weather is False and user_occation != "None") or (
         occation_filter(user_occation)["戶外與否"] is False
     ):
         candidate = occation_filter(user_occation)
+    
     # 考量天氣與場合
     else:
         weather_info = getWeatherData(city, place)
         candidate = weather_rule_Base(weather_info)
-        # 測試用
-        # candidate = weather_rule_Base(inputdata)
-        # print(candidate)
         occation_info = occation_filter(user_occation)
-        # print(occation_info)
         for i in range(0, len(candidate)):
             item = candidate[i]["material"]
             candidate[i]["material"] = list(set(item) & set(occation_info["material"]))
-            # item = candidate["種類"][i]
             item = candidate[i]["subcategories"]
             candidate[i]["subcategories"] = list(
                 set(item) & set(occation_info["subcategories"])
             )
 
-            # candidate["種類"][i] =  item
-
-    return candidate
+    return candidate if len(candidate) == 1 else [candidate]

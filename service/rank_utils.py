@@ -1,5 +1,7 @@
 # functions.py
 
+import os
+from dotenv import load_dotenv
 import torch
 import torch.nn as nn
 import requests
@@ -7,7 +9,10 @@ import base64
 import time
 from transformers import BertTokenizer, BertModel
 
-def generate_description(top_cloth_url, bottom_cloth_url, api_key):
+def generate_description(top_cloth_url, bottom_cloth_url ):
+    load_dotenv()
+    api_key = os.getenv("API_KEY")
+
     response_top = requests.get(top_cloth_url)
     response_top.raise_for_status()
     image_base64_string_2 = base64.b64encode(response_top.content).decode('utf-8')
