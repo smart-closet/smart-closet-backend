@@ -29,6 +29,7 @@ categories = [
     Category(id=2, name="bottom"),
     Category(id=3, name="shoes"),
     Category(id=4, name="bag"),
+    Category(id=5, name="tes"),
 ]
 
 attributes = [
