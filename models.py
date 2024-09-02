@@ -116,8 +116,7 @@ class OutfitDelete(OutfitBase):
     name: str
 
 class RuleBaseFilterRequest(BaseModel):
-    city: str
-    place: str
+    temperature: float
     consider_weather: bool = True
     user_occation: Optional[str] = None
     personal_temp: Optional[int] = 0

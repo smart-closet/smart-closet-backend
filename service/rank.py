@@ -1,6 +1,4 @@
-# import os
-import random
-# from service.rank_utils import generate_description_with_retry, generate_bert_embeddings
+from service.rank_utils import generate_description_with_retry, generate_bert_embeddings, evaluate_model
 
 def rank(top_list, bottom_list):
     try:
@@ -8,25 +6,24 @@ def rank(top_list, bottom_list):
 
         for top_item in top_list:
             for bottom_item in bottom_list:
-                # top_url = top_item['image_url']
-                # bottom_url = bottom_item['image_url']
+                top_url = top_item['image_url']
+                bottom_url = bottom_item['image_url']
                 
                 # 生成描述
-                # description = generate_description_with_retry(top_url, bottom_url)
-                # print(f"Generated Description for {top_id} and {bottom_id}: {description}")
+                description = generate_description_with_retry(top_url, bottom_url)
 
                 # 生成 BERT 嵌入
-                # descriptions = [description]
-                # embeddings = generate_bert_embeddings(descriptions)
+                descriptions = [description]
+                embeddings = generate_bert_embeddings(descriptions)
 
                 # 產生評分
-                # scores = evaluate_model('api/models/BERT_model_1.pt', embeddings)
+                scores = evaluate_model('api/models/BERT_model_1.pt', embeddings)
 
                 # 將結果加入結果列表
                 result = {
                     'top': top_item,
                     'bottom': bottom_item,
-                    'score': random.random()
+                    'score': scores[0]
                 }
                 results.append(result)
 

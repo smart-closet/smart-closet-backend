@@ -1,78 +1,4 @@
-﻿import time
-import requests
-import pandas as pd
-from datetime import datetime
-
-# 獲取天氣資訊
-
-
-def getWeatherData(city, place, current_Time=None):
-    district = {
-        "宜蘭縣": "01",
-        "桃園市": "05",
-        "臺北市": "61",
-        "新北市": "69",
-        "臺中市": "73",
-        "臺南市": "77",
-        "高雄市": "65",
-        "新竹縣": "09",
-        "苗栗縣": "13",
-        "彰化縣": "17",
-        "南投縣": "21",
-        "雲林縣": "25",
-        "嘉義縣": "29",
-        "屏東縣": "33",
-        "花蓮縣": "41",
-        "臺東縣": "37",
-        "澎湖縣": "45",
-        "金門縣": "85",
-        "連江縣": "81",
-        "基隆市": "49",
-        "新竹市": "53",
-        "嘉義市": "57",
-    }
-    url = "https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-D0047-0" + district[city]
-
-    # 資料是每3個小時更新一次，如果沒輸入時間就 default 是現在時間，取離現在時間最近的前一筆資料
-    if current_Time is None:
-        current_Time = datetime.now()
-    current_time_str = current_Time.strftime("%Y-%m-%dT%H:%M:%S")
-
-    params = {
-        "Authorization": "CWA-7EBCB64E-EA36-4A13-9D77-82DC3F7E877C",
-        "elementName": ["PoP6h", "WeatherDescription", "CI", "T", "AT"],
-        "locationName": [place],
-        "timeFrom": current_time_str,
-    }
-
-    max_retries = 5
-    retries = 0
-    while retries < max_retries:
-        try:
-            response = requests.get(url, params=params)
-            response.raise_for_status()  # 若請求失敗會引發 HTTPError
-            data = pd.read_json(response.text)
-            data = data.loc["locations", "records"][0]["location"]
-            info_now = {}
-            for element in data[0]["weatherElement"]:
-                info_now[element["description"]] = element["time"][0]["elementValue"][
-                    0
-                ]["value"]
-            return info_now
-        except requests.exceptions.RequestException as e:
-            print(f"網路異常，請耐心等待 {e}")
-            retries += 1
-            time.sleep(2)  # 等待2秒後重試
-        except (KeyError, IndexError) as e:
-            print(f"Parsing failed: {e}. Retrying ({retries + 1}/{max_retries})...")
-            retries += 1
-            time.sleep(2)  # 等待2秒後重試
-
-    print("Failed to retrieve data after multiple retries.")
-    return None
-
-
-# 天氣篩選
+﻿# 天氣篩選
 
 def split_clothing_dict(data):
     # Initialize list of dictionaries to hold the split data
@@ -92,8 +18,8 @@ def split_clothing_dict(data):
     return split_data
 
 
-def weather_rule_Base(input_data, personal_temp=0):
-    body_temp = int(input_data["體感溫度"]) - personal_temp
+def weather_rule_Base(temperature, personal_temp=0):
+    body_temp = int(temperature - personal_temp)
 
     candidate_cloth_type = []
     Final_recommend = {
@@ -413,12 +339,11 @@ def occation_filter(user_occation):
 
 
 def rule_base_filter(
-    city, place, consider_weather=True, user_occation=None
+    temperature, consider_weather=True, user_occation=None
 ):
     # 如果只考量天氣不考慮環境
     if consider_weather is True and user_occation is None:
-        weather_info = getWeatherData(city, place)
-        candidate = weather_rule_Base(weather_info)
+        candidate = weather_rule_Base(temperature)
     
     # 只考量場合不考慮天氣 (不想考慮 or 室內)
     elif (consider_weather is False and user_occation != "None") or (
@@ -428,8 +353,7 @@ def rule_base_filter(
     
     # 考量天氣與場合
     else:
-        weather_info = getWeatherData(city, place)
-        candidate = weather_rule_Base(weather_info)
+        candidate = weather_rule_Base(temperature)
         occation_info = occation_filter(user_occation)
         for i in range(0, len(candidate)):
             item = candidate[i]["material"]

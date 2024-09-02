@@ -27,8 +27,7 @@ def ruleBase_filter(
     session: Session = Depends(get_session),
 ):
     filter_criteria = rule_base_filter(
-        request.city,
-        request.place,
+        request.temperature,
         request.consider_weather,
         request.user_occation,
     )[0]
@@ -42,9 +41,7 @@ def ruleBase_filter(
         select(Item)
         .where(Item.category_id.in_([1, 2]))
         .where(Item.subcategory_id.in_(subcategory_ids))
-    ).all()
-
-    print(items, subcategory_ids)    
+    ).all()  
     
     # 過濾 category_id 為 1 和 2 的項目
     top = [item.dict() for item in items if item.category_id == 1]
