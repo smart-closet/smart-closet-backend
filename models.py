@@ -55,6 +55,7 @@ class Subcategory(SubcategoryBase, table=True):
 
 class SubcategoryRead(SubcategoryBase):
     id: int
+    name: str
 
 class SubcategoryCreate(SubcategoryBase):
     pass
@@ -68,6 +69,7 @@ class ItemBase(SQLModel):
     image_url: Optional[str] = Field(default=None)
     category_id: int = Field(..., foreign_key="category.id")
     subcategory_id: Optional[int] = Field(default=None, foreign_key="subcategory.id")
+    description: Optional[str] = None
 
 class Item(ItemBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -87,12 +89,14 @@ class ItemCreate(ItemBase):
     image_url: str
     category_id: int
     subcategory_id: Optional[int] = None
+    description: Optional[str] = None
 
 class ItemUpdate(ItemBase):
     name: Optional[str] = None
     image_url: Optional[str] = None
     category_id: Optional[int] = None
     subcategory_id: Optional[int] = None
+    description: Optional[str] = None
 
 # outfit model
 class OutfitBase(SQLModel):

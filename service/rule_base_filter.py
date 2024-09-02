@@ -254,6 +254,7 @@ def occation_filter(user_occation):
             "short-sleeve button-up shirt",
             "cotton-pants",
             "skirt",
+            "suit-jacket",
         ],
     }
     occation_cloth_textrue = {

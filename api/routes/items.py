@@ -5,7 +5,7 @@ from sqlmodel import select
 from models import Item, ItemCreate, ItemRead, ItemUpdate, Attribute, Category
 
 from db import get_session
-
+from service.item_utils import get_item_description, get_item_subcategory_id
 
 router = APIRouter()
 
@@ -17,7 +17,13 @@ def create_item(item: ItemCreate, session: Session = Depends(get_session)):
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
 
-    db_item = Item(name=item.name, image_url=item.image_url, category_id=item.category_id)
+    db_item = Item(
+        name=item.name,
+        image_url=item.image_url,
+        category_id=item.category_id,
+        subcategory_id=get_item_subcategory_id(item),
+        description=get_item_description(item),
+    )
     session.add(db_item)
     session.commit()
     session.refresh(db_item)
@@ -70,7 +76,9 @@ def delete_item(item_id: int, session: Session = Depends(get_session)):
     session.commit()
     return item
 
+
 # Item Attributes endpoints
+
 
 @router.delete(
     "/{item_id}/attributes/{attribute_id}",
@@ -96,6 +104,7 @@ def remove_attribute_from_item(
     session.commit()
     session.refresh(db_item)
     return db_item
+
 
 @router.post(
     "/{item_id}/attributes/{attribute_id}",
