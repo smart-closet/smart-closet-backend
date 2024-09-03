@@ -5,7 +5,7 @@ from sqlmodel import select
 from models import Item, ItemCreate, ItemRead, ItemUpdate, Attribute, Category
 
 from db import get_session
-from service.item_utils import get_item_description, get_item_subcategory_id
+from service.item_utils import get_item_info
 
 router = APIRouter()
 
@@ -17,12 +17,16 @@ def create_item(item: ItemCreate, session: Session = Depends(get_session)):
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
 
+    item_info = get_item_info(item)
+    print(item_info)
+
     db_item = Item(
         name=item.name,
         image_url=item.image_url,
         category_id=item.category_id,
-        subcategory_id=get_item_subcategory_id(item),
-        description=get_item_description(item),
+        subcategory_id=item_info['subcategory_id'],
+        description=item_info['description'],
+        style=item_info['style']
     )
     session.add(db_item)
     session.commit()
