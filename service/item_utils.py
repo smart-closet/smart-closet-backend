@@ -22,6 +22,12 @@ def get_item_info(item: Item) -> dict:
         for row in reader:
             subcategories.append(row['value'])
 
+    attributes = []
+    with open('tools/attribute.csv', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            attributes.append(row['value'])
+
     url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
     headers = {"Content-Type": "application/json"}
     data = {
@@ -32,13 +38,13 @@ def get_item_info(item: Item) -> dict:
                         "text": f"""Based on the image, analyze the clothing item and provide the following information in JSON format:
 1. Pick a suitable subcategory from the following list: {', '.join(subcategories)}
 2. Describe the appearance, material, and texture of the clothing.
-3. Determine if this outfit belongs to European and American style, Korean style, or Japanese style.
+3. Pick multiple attribute from the following list: {', '.join(attributes)}
 
 Return the information in the following JSON format:
 {{
     "subcategory": "Selected subcategory",
     "description": "Detailed description of appearance, material, and texture",
-    "style": "European and American / Korean / Japanese"
+    "attribute": ["Selected attribute 1", "Selected attribute 2", ...]
 }}"""
                     },
                     {
@@ -70,6 +76,9 @@ Return the information in the following JSON format:
         raise HTTPException(status_code=404, detail="Subcategory not found")
 
     item_info['subcategory_id'] = subcategory_id
+    item_info['attributes'] = " ".join(item_info['attribute'])
+
+
     return item_info
 
 def get_item_subcategory_id(item: Item) -> int:

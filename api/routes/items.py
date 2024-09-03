@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from sqlmodel import select
-from models import Item, ItemCreate, ItemRead, ItemUpdate, Attribute, Category
+from models import Item, ItemAttributeLink, ItemCreate, ItemRead, ItemUpdate, Attribute, Category
 
 from db import get_session
 from service.item_utils import get_item_info
@@ -18,7 +18,6 @@ def create_item(item: ItemCreate, session: Session = Depends(get_session)):
         raise HTTPException(status_code=404, detail="Category not found")
 
     item_info = get_item_info(item)
-    print(item_info)
 
     db_item = Item(
         name=item.name,
@@ -26,11 +25,25 @@ def create_item(item: ItemCreate, session: Session = Depends(get_session)):
         category_id=item.category_id,
         subcategory_id=item_info['subcategory_id'],
         description=item_info['description'],
-        style=item_info['style']
     )
     session.add(db_item)
     session.commit()
     session.refresh(db_item)
+
+    for attribute in item_info['attribute']:
+        db_attribute = session.exec(select(Attribute).where(Attribute.name == attribute)).first()
+        if not db_attribute:
+            new = Attribute(name="material", value=attribute)
+            session.add(new)
+            session.commit()
+            session.refresh(new)
+            db_attribute = new
+        
+        newLink = ItemAttributeLink(item_id=db_item.id, attribute_id=db_attribute.id)
+        session.add(newLink)
+        
+    session.commit()
+
     return db_item
 
 
