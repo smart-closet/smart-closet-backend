@@ -5,3 +5,4 @@ requests
 pandas
 torch
 transformers
+firebase-admin

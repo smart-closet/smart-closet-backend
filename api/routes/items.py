@@ -1,48 +1,60 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 from typing import List
 from sqlmodel import select
-from models import Item, ItemAttributeLink, ItemCreate, ItemRead, ItemUpdate, Attribute, Category
+from models import (
+    Item,
+    ItemAttributeLink,
+    ItemCreate,
+    ItemRead,
+    ItemUpdate,
+    Attribute,
+    Category,
+)
 
 from db import get_session
-from service.item_utils import get_item_info
+from service.item_utils import get_item_info, upload_image
 
 router = APIRouter()
 
 
 # Item endpoints
 @router.post("/", response_model=ItemCreate)
-def create_item(item: ItemCreate, session: Session = Depends(get_session)):
-    category = session.get(Category, item.category_id)
-    if not category:
-        raise HTTPException(status_code=404, detail="Category not found")
-
-    item_info = get_item_info(item)
+async def create_item(
+    name: str = Form(),
+    image: UploadFile = File(...),
+    session: Session = Depends(get_session),
+):
+    image_url = await upload_image(image, name)
+    item_info = get_item_info(image_url)
 
     db_item = Item(
-        name=item.name,
-        image_url=item.image_url,
-        category_id=item.category_id,
-        subcategory_id=item_info['subcategory_id'],
-        description=item_info['description'],
+        name=name,
+        image_url=image_url,
+        category_id=item_info["category_id"],
+        subcategory_id=item_info["subcategory_id"],
+        description=item_info["description"],
     )
     session.add(db_item)
     session.commit()
     session.refresh(db_item)
 
-    for attribute in item_info['attribute']:
-        db_attribute = session.exec(select(Attribute).where(Attribute.name == attribute)).first()
+    for attribute in item_info["attribute"]:
+        db_attribute = session.exec(
+            select(Attribute).where(Attribute.name == attribute)
+        ).first()
         if not db_attribute:
             new = Attribute(name="material", value=attribute)
             session.add(new)
             session.commit()
             session.refresh(new)
             db_attribute = new
-        
+
         newLink = ItemAttributeLink(item_id=db_item.id, attribute_id=db_attribute.id)
         session.add(newLink)
-        
+
     session.commit()
+    session.refresh(db_item)
 
     return db_item
 
@@ -80,7 +92,6 @@ def update_item(
         db_item.category_id = item.category_id
 
     session.commit()
-    session.refresh(db_item)
     return db_item
 
 

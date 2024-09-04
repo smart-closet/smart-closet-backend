@@ -1,17 +1,19 @@
-from fastapi import HTTPException
+import uuid
+from fastapi import File, HTTPException
 import requests
 import base64
 import csv
 import os
 import json
-from models import Item
 from dotenv import load_dotenv
+from firebase_admin import storage
+
 
 load_dotenv()
 api_key = os.getenv("API_KEY")
 
-def get_item_info(item: Item) -> dict:
-    response = requests.get(item.image_url)
+def get_item_info(image_url: str) -> dict:
+    response = requests.get(image_url)
     response.raise_for_status()
     image_base64_string = base64.b64encode(response.content).decode("utf-8")
 
@@ -36,12 +38,14 @@ def get_item_info(item: Item) -> dict:
                 "parts": [
                     {
                         "text": f"""Based on the image, analyze the clothing item and provide the following information in JSON format:
+1. Check the item is a top, bottom. Top return 1, bottom return 2.
 1. Pick a suitable subcategory from the following list: {', '.join(subcategories)}
 2. Describe the appearance, material, and texture of the clothing.
 3. Pick multiple attribute from the following list: {', '.join(attributes)}
 
 Return the information in the following JSON format:
 {{
+    "category_id": "Top(1) or Bottom(2)",
     "subcategory": "Selected subcategory",
     "description": "Detailed description of appearance, material, and texture",
     "attribute": ["Selected attribute 1", "Selected attribute 2", ...]
@@ -81,10 +85,18 @@ Return the information in the following JSON format:
 
     return item_info
 
-def get_item_subcategory_id(item: Item) -> int:
-    subcategory_id, _ = get_item_info(item)
-    return subcategory_id
+async def upload_image(file: File, name: str) -> str:
+    bucket = storage.bucket()
+        
+    # Create a blob in Firebase Storage
+    blob = bucket.blob(f"items/{uuid.uuid4()}-{name}-{file.filename}")
 
-def get_item_description(item: Item) -> str:
-    _, description = get_item_info(item)
-    return description
+     # Upload the file contents
+    blob.upload_from_string(
+        await file.read(),
+        content_type=file.content_type
+    )
+
+    blob.make_public()
+
+    return blob.public_url
