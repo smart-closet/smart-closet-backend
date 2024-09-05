@@ -13,7 +13,7 @@ from models import (
 )
 
 from db import get_session
-from service.item_utils import get_item_info, upload_image
+from service.item_utils import get_item_info, upload_image, remove_bg
 
 router = APIRouter()
 
@@ -25,6 +25,7 @@ async def create_item(
     image: UploadFile = File(...),
     session: Session = Depends(get_session),
 ):
+    image = await remove_bg(image)
     image_url = await upload_image(image, name)
     item_info = get_item_info(image_url)
 

@@ -6,3 +6,4 @@ pandas
 torch
 transformers
 firebase-admin
+pillow
