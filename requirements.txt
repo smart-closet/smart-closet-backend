@@ -7,3 +7,4 @@ torch
 transformers
 firebase-admin
 pillow
+aiohttp
