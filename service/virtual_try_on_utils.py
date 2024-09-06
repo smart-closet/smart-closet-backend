@@ -40,20 +40,16 @@ async def send_request(data, api_url, api_key):
 
 # mode can be upper_body, lower_body and dresses
 def construct_data(human_url: AnyUrl, cloth_url: AnyUrl, mode="upper_body"):
-    # 将 AnyUrl 转换为字符串
     human_url_str = str(human_url)
     cloth_url_str = str(cloth_url)
 
-    # 检查 human_url 是否是 URL，如果是，则获取图像并转为 base64
     if human_url_str.startswith("http://") or human_url_str.startswith("https://"):
         response_human = requests.get(human_url_str)
         response_human.raise_for_status()
         human_base64 = base64.b64encode(response_human.content).decode("utf-8")
     else:
-        # 如果不是 URL，假设它是 base64 编码的数据，直接使用
         human_base64 = human_url_str
 
-    # 处理 cloth_url，假设 cloth_url 总是 URL
     response_cloth = requests.get(cloth_url_str)
     response_cloth.raise_for_status()
     cloth_base64 = base64.b64encode(response_cloth.content).decode("utf-8")
