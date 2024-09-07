@@ -14,7 +14,6 @@ from models import (
 
 from db import get_session
 from service.item_utils import get_item_info, upload_image, split_image
-import asyncio
 
 router = APIRouter()
 
@@ -30,9 +29,8 @@ async def create_item(
     items = []
 
     for image in images:
-        item_info, image_url = await asyncio.gather(
-            get_item_info(image), upload_image(image, name)
-        )
+        image_url = await upload_image(image, name)
+        item_info = await get_item_info(image)
 
         db_item = Item(
             name=name,
