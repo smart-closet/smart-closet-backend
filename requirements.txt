@@ -8,3 +8,6 @@ transformers
 firebase-admin
 pillow
 aiohttp
+inference_sdk
+supervision
+google.generativeai
