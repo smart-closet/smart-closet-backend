@@ -19,7 +19,7 @@ api_key = os.getenv("API_KEY")
 df2_api_key = os.getenv("DF2_API_KEY")
 
 
-async def get_item_info(image: UploadFile) -> dict:
+async def get_item_info(image: UploadFile, item_count: int) -> dict:
     # 讀取 subcategory.csv 文件
     subcategories = []
     with open("tools/subcategory.csv", newline="") as csvfile:
@@ -39,33 +39,24 @@ async def get_item_info(image: UploadFile) -> dict:
         "gemini-1.5-flash", generation_config={"response_mime_type": "application/json"}
     )
     prompt = f"""response_mime_type: application/json
-Based on the image, analyze the clothing item and provide the following information in JSON format:
+Based on the image, analyze the clothing items and provide the following information in JSON format:
 1. give it a name based on the appearance of the clothing.
 1. Check the item is a top, bottom. Top return 1, bottom return 2.
-1. Pick a suitable subcategory from the following list: {', '.join(subcategories)}
+1. Pick a suitable subcategory from the following list: {', '.join(subcategories)} and return its index + 1.
 2. Describe the appearance, material, and texture of the clothing.
-3. Pick multiple attribute from the following list: {', '.join(attributes)}
+3. Pick multiple attribute from the following list: {', '.join(attributes)} and return their index + 1.
 
-Return the information in the following JSON format:
-{{
+Return the information in the following JSON format for {item_count} items:
+{[{
     "name": "Name of the clothing item",
     "category_id": "Top(1) or Bottom(2)",
-    "subcategory": "Selected subcategory",
+    "subcategory_id": "Selected subcategory",
     "description": "Detailed description of appearance, material, and texture",
-    "attribute": ["Selected attribute 1", "Selected attribute 2", ...]
-}}"""
-    response = model.generate_content(
-        [
-            prompt,
-            Image.open(image.file)
-        ]
-    )
-    
-    item_info = json.loads(response.text)
-    item_info["subcategory_id"] = subcategories.index(item_info["subcategory"]) + 1
-    item_info["attributes"] = " ".join(item_info["attribute"])
-
-    return item_info
+    "attribute_ids": ["attribute_id 1", "attribute_id 2", ...]
+}]}"""
+    response = model.generate_content([prompt, Image.open(image.file)])
+    item_infos = json.loads(response.text)
+    return item_infos
 
 
 async def upload_image(file: UploadFile) -> str:
@@ -98,7 +89,7 @@ async def split_image(image: UploadFile) -> UploadFile:
                     max_y = max(max_y, y)
 
         # 裁切出非透明區域
-        cropped_image = image.crop((min_x, min_y, max_x + 1, max_y + 1))
+        cropped_image = image.crop((min_x - 100, min_y - 100, max_x + 100, max_y + 100))
 
         # 將裁切後的圖片放大到原始圖片的大小
         enlarged_image = cropped_image.resize(image.size, Image.LANCZOS)

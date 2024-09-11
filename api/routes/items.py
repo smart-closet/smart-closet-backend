@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+import time
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 from typing import List
 from sqlmodel import select
@@ -23,12 +24,14 @@ async def create_item(
     image: UploadFile = File(...),
     session: Session = Depends(get_session),
 ):
+    start = time.time()
     images = await split_image(image)
     items = []
+    item_infos = await get_item_info(image, len(images))
 
-    for image in images:
+    for idx, image in enumerate(images):
+        item_info = item_infos[idx]
         image_url = await upload_image(image)
-        item_info = await get_item_info(image)
 
         db_item = Item(
             name=item_info["name"],
@@ -38,36 +41,18 @@ async def create_item(
             description=item_info["description"],
         )
         session.add(db_item)
-        session.commit()
-        session.refresh(db_item)
+        session.flush()
         items.append(db_item)
 
-        existing_attributes = {
-            attr.value: attr
-            for attr in session.exec(
-                select(Attribute).where(Attribute.value.in_(item_info["attribute"]))
-            ).all()
-        }
-
-        for attribute in item_info["attribute"]:
-            if attribute not in existing_attributes:
-                new_attr = Attribute(name="material", value=attribute)
-                session.add(new_attr)
-                session.flush()
-                existing_attributes[attribute] = new_attr
-
-        session.commit()
-
         new_links = [
-            ItemAttributeLink(
-                item_id=db_item.id, attribute_id=existing_attributes[attribute].id
-            )
-            for attribute in item_info["attribute"]
+            ItemAttributeLink(item_id=db_item.id, attribute_id=attribute_id)
+            for attribute_id in item_info["attribute_ids"]
         ]
 
         session.add_all(new_links)
-        session.commit()
 
+    session.commit()
+    print(f"Time taken: {time.time() - start}")
     return items
 
 
