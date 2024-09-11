@@ -40,6 +40,7 @@ async def get_item_info(image: UploadFile) -> dict:
     )
     prompt = f"""response_mime_type: application/json
 Based on the image, analyze the clothing item and provide the following information in JSON format:
+1. give it a name based on the appearance of the clothing.
 1. Check the item is a top, bottom. Top return 1, bottom return 2.
 1. Pick a suitable subcategory from the following list: {', '.join(subcategories)}
 2. Describe the appearance, material, and texture of the clothing.
@@ -47,6 +48,7 @@ Based on the image, analyze the clothing item and provide the following informat
 
 Return the information in the following JSON format:
 {{
+    "name": "Name of the clothing item",
     "category_id": "Top(1) or Bottom(2)",
     "subcategory": "Selected subcategory",
     "description": "Detailed description of appearance, material, and texture",
@@ -66,11 +68,11 @@ Return the information in the following JSON format:
     return item_info
 
 
-async def upload_image(file: UploadFile, name: str) -> str:
+async def upload_image(file: UploadFile) -> str:
     bucket = storage.bucket()
 
     # Create a blob in Firebase Storage
-    blob = bucket.blob(f"items/{uuid.uuid4()}-{name}-{file.filename}")
+    blob = bucket.blob(f"items/{uuid.uuid4()}")
 
     # Upload the file contents
     blob.upload_from_string(await file.read(), content_type="image/png")

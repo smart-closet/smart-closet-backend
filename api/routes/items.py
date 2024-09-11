@@ -5,7 +5,6 @@ from sqlmodel import select
 from models import (
     Item,
     ItemAttributeLink,
-    ItemCreate,
     ItemRead,
     ItemUpdate,
     Attribute,
@@ -19,9 +18,8 @@ router = APIRouter()
 
 
 # Item endpoints
-@router.post("/", response_model=List[ItemCreate])
+@router.post("/", response_model=List[ItemRead])
 async def create_item(
-    name: str = Form(),
     image: UploadFile = File(...),
     session: Session = Depends(get_session),
 ):
@@ -29,11 +27,11 @@ async def create_item(
     items = []
 
     for image in images:
-        image_url = await upload_image(image, name)
+        image_url = await upload_image(image)
         item_info = await get_item_info(image)
 
         db_item = Item(
-            name=name,
+            name=item_info["name"],
             image_url=image_url,
             category_id=item_info["category_id"],
             subcategory_id=item_info["subcategory_id"],
