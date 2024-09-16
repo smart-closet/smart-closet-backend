@@ -27,7 +27,7 @@ async def create_item(
     start = time.time()
     images = await split_image(image)
     items = []
-    item_infos = await get_item_info(image, len(images))
+    item_infos = await get_item_info(images, len(images))
 
     for idx, image in enumerate(images):
         item_info = item_infos[idx]

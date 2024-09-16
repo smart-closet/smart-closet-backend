@@ -19,7 +19,7 @@ api_key = os.getenv("API_KEY")
 df2_api_key = os.getenv("DF2_API_KEY")
 
 
-async def get_item_info(image: UploadFile, item_count: int) -> dict:
+async def get_item_info(images: list[UploadFile], item_count: int) -> dict:
     # 讀取 subcategory.csv 文件
     subcategories = []
     with open("tools/subcategory.csv", newline="") as csvfile:
@@ -54,19 +54,17 @@ Return the information in the following JSON format for {item_count} items:
     "description": "Detailed description of appearance, material, and texture",
     "attribute_ids": ["attribute_id 1", "attribute_id 2", ...]
 }]}"""
-    response = model.generate_content([prompt, Image.open(image.file)])
+    response = model.generate_content([prompt, Image.open(images[0].file), Image.open(images[1].file)])
     item_infos = json.loads(response.text)
     return item_infos
 
 
 async def upload_image(file: UploadFile) -> str:
     bucket = storage.bucket()
-
-    # Create a blob in Firebase Storage
     blob = bucket.blob(f"items/{uuid.uuid4()}")
 
-    # Upload the file contents
-    blob.upload_from_string(await file.read(), content_type="image/png")
+    file.file.seek(0)
+    blob.upload_from_file(file.file, content_type="image/png")
     blob.make_public()
 
     return blob.public_url
