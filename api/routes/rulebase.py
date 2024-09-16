@@ -56,19 +56,12 @@ def ruleBase_filter(
     ]
 
     if request.item_id:
-        print(request.item_id)
-        top = (
-            [item for item in top if item["id"] == request.item_id]
-            if any(item["id"] == request.item_id for item in top)
-            else top
-        )
-        bottom = (
-            [item for item in bottom if item["id"] == request.item_id]
-            if any(item["id"] == request.item_id for item in bottom)
-            else bottom
-        )
+        selected_item: Item = session.get(Item, request.item_id).model_dump()
+        if selected_item["category_id"] == 1:
+            top = [selected_item]
+        elif selected_item["category_id"] == 2:
+            bottom = [selected_item]
 
-    # 使用 rank 函數
     ranked_results = rank(top, bottom)
 
     return ranked_results
