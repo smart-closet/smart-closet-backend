@@ -124,3 +124,20 @@ class RuleBaseFilterRequest(BaseModel):
     consider_weather: bool = True
     user_occation: Optional[str] = None
     personal_temp: Optional[int] = 0
+
+class MyImageBase(SQLModel):
+    user_id: int
+    image_url: str
+
+class MyImage(MyImageBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+
+class MyImageRead(MyImageBase):
+    id: int
+
+class MyImageCreate(MyImageBase):
+    pass
+
+class MyImageUpdate(MyImageBase):
+    user_id: Optional[int] = None
+    image_url: Optional[str] = None

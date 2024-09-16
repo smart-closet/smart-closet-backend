@@ -4,7 +4,7 @@ from sqlmodel import SQLModel, create_engine, Session, select
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from models import Attribute, Category, Item, Outfit, Subcategory, ItemAttributeLink
+from models import Attribute, Category, Item, MyImage, Outfit, Subcategory, ItemAttributeLink
 import csv
 
 load_dotenv()
@@ -132,6 +132,10 @@ item_outfit_links = [
     ItemAttributeLink(item_id=4, attribute_id=3),
 ]
 
+my_images = [
+    MyImage(user_id=1, image_url="https://scontent-atl3-1.cdninstagram.com/v/t51.29350-15/274634263_1377079109405972_1061633955932495662_n.jpg?stp=dst-jpg_e35&efg=eyJ2ZW5jb2RlX3RhZyI6ImltYWdlX3VybGdlbi4xNDQweDE3OTYuc2RyLmYyOTM1MC5kZWZhdWx0X2ltYWdlIn0&_nc_ht=scontent-atl3-1.cdninstagram.com&_nc_cat=108&_nc_ohc=VnYJmQeqZ0kQ7kNvgHBVlUB&_nc_gid=24297131248f4f6eb48f8284430d3ea3&edm=APs17CUBAAAA&ccb=7-5&ig_cache_key=Mjc4MTkxMjM5NzM5OTMxOTk3NA%3D%3D.3-ccb7-5&oh=00_AYBpyg_aa4IrfKrFPmFUMQ5-fyARNphTT7aAOcn-g7_2qA&oe=66EDC1DE&_nc_sid=10d13b"),
+]
+
 
 # Function to insert mock data into the database
 def create_mock_data():
@@ -145,6 +149,7 @@ def create_mock_data():
         session.add_all(attributes)
         session.add_all(items)
         session.add_all(outfits)
+        session.add_all(my_images)
         session.commit()
 
         session.add_all(item_outfit_links)
