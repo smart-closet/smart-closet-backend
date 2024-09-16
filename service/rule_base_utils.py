@@ -1,5 +1,17 @@
 ﻿# 天氣篩選
 
+import csv
+
+
+def load_subcategory_mapping():
+    subcategory_mapping = {}
+    with open("tools/subcategory.csv", newline="") as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            subcategory_mapping[row["value"]] = int(row["id"])
+    return subcategory_mapping
+
+
 def split_clothing_dict(data):
     # Initialize list of dictionaries to hold the split data
     split_data = []
@@ -339,19 +351,17 @@ def occation_filter(user_occation):
     return data
 
 
-def rule_base_filter(
-    temperature, consider_weather=True, user_occation=None
-):
+def rule_base_filter(temperature, consider_weather=True, user_occation=None):
     # 如果只考量天氣不考慮環境
     if consider_weather is True and user_occation is None:
         candidate = weather_rule_Base(temperature)
-    
+
     # 只考量場合不考慮天氣 (不想考慮 or 室內)
     elif (consider_weather is False and user_occation != "None") or (
         occation_filter(user_occation)["戶外與否"] is False
     ):
         candidate = occation_filter(user_occation)
-    
+
     # 考量天氣與場合
     else:
         candidate = weather_rule_Base(temperature)

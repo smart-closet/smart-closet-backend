@@ -54,7 +54,9 @@ Return the information in the following JSON format for {item_count} items:
     "description": "Detailed description of appearance, material, and texture",
     "attribute_ids": ["attribute_id 1", "attribute_id 2", ...]
 }]}"""
-    response = model.generate_content([prompt, Image.open(images[0].file), Image.open(images[1].file)])
+    content = [prompt]
+    content.extend([Image.open(image.file) for image in images])
+    response = model.generate_content(content)
     item_infos = json.loads(response.text)
     return item_infos
 

@@ -133,7 +133,7 @@ item_outfit_links = [
 ]
 
 my_images = [
-    MyImage(user_id=1, image_url="https://scontent-atl3-1.cdninstagram.com/v/t51.29350-15/274634263_1377079109405972_1061633955932495662_n.jpg?stp=dst-jpg_e35&efg=eyJ2ZW5jb2RlX3RhZyI6ImltYWdlX3VybGdlbi4xNDQweDE3OTYuc2RyLmYyOTM1MC5kZWZhdWx0X2ltYWdlIn0&_nc_ht=scontent-atl3-1.cdninstagram.com&_nc_cat=108&_nc_ohc=VnYJmQeqZ0kQ7kNvgHBVlUB&_nc_gid=24297131248f4f6eb48f8284430d3ea3&edm=APs17CUBAAAA&ccb=7-5&ig_cache_key=Mjc4MTkxMjM5NzM5OTMxOTk3NA%3D%3D.3-ccb7-5&oh=00_AYBpyg_aa4IrfKrFPmFUMQ5-fyARNphTT7aAOcn-g7_2qA&oe=66EDC1DE&_nc_sid=10d13b"),
+    MyImage(user_id=1, image_url="https://storage.googleapis.com/quiztory-f5e09.appspot.com/items/ff484702-3dc1-4f4a-a9ca-4474170c20cf"),
 ]
 
 

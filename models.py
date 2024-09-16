@@ -1,6 +1,5 @@
 from sqlmodel import Field, SQLModel, Relationship
 from typing import List, Optional
-from pydantic import BaseModel
 
 class ItemAttributeLink(SQLModel, table=True):
     item_id: Optional[int] = Field(default=None, foreign_key="item.id", primary_key=True)
@@ -118,12 +117,6 @@ class OutfitUpdate(OutfitBase):
 
 class OutfitDelete(OutfitBase):
     name: str
-
-class RuleBaseFilterRequest(BaseModel):
-    temperature: float
-    consider_weather: bool = True
-    user_occation: Optional[str] = None
-    personal_temp: Optional[int] = 0
 
 class MyImageBase(SQLModel):
     user_id: int

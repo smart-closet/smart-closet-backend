@@ -2,7 +2,7 @@ from typing import List
 from fastapi import APIRouter, HTTPException
 from dotenv import load_dotenv
 import os
-from service.virtual_try_on_utils import send_request, construct_data
+from service.try_on_utils import send_request, construct_data
 
 router = APIRouter()
 
