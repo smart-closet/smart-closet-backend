@@ -20,10 +20,9 @@ async def send_request(data, api_url, api_key):
                     content_type = response.headers.get("Content-Type")
                     if "image" in content_type:
                         image_data = await response.read()
-
-                        image_base64 = base64.b64encode(image_data).decode("utf-8")
+                        image_base64 = base64.b64encode(image_data)
                         # image_binary = base64.b64decode(image_base64)
-                        # timestamp = int(time.time())
+                        # timestamp = 2345678
                         # file_path = f"output_image_{timestamp}.jpg"
                         # with open(file_path, "wb") as f:
                         #     f.write(image_binary)
