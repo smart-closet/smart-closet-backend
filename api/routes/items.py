@@ -17,6 +17,10 @@ from service.item_utils import get_item_info, upload_image, split_image
 
 router = APIRouter()
 
+def print_time_taken(start, message):
+    print(f"{message}: Time taken: {time.time() - start}")
+    start = time.time()
+
 
 # Item endpoints
 @router.post("/", response_model=List[ItemRead])
@@ -26,8 +30,10 @@ async def create_item(
 ):
     start = time.time()
     images = await split_image(image)
+    print_time_taken(start, "Splitting image")
     items = []
     item_infos = await get_item_info(images, len(images))
+    print_time_taken(start, "Getting item info")
 
     for idx, image in enumerate(images):
         item_info = item_infos[idx]
