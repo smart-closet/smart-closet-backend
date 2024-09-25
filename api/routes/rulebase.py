@@ -6,7 +6,7 @@ from sqlmodel import select
 from models import Item
 from db import get_session
 from service.rule_base_utils import load_subcategory_mapping, rule_base_filter
-from service.rank import rank
+from service.rank_utils import rank
 
 router = APIRouter()
 
