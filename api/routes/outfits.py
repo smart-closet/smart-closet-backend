@@ -2,18 +2,25 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from sqlmodel import select
-from models import Outfit, OutfitCreate, OutfitRead, OutfitUpdate, Item
+from models import Outfit, OutfitCreate, OutfitItemLink, OutfitRead, OutfitUpdate, Item
 from db import get_session
 
 router = APIRouter()
 
+
 # Outfit endpoints
 @router.post("/", response_model=OutfitRead)
 def create_outfit(outfit: OutfitCreate, session: Session = Depends(get_session)):
-    db_outfit = Outfit(name=outfit.name)
+    db_outfit = Outfit()
     session.add(db_outfit)
+    session.flush()
+    new_links = [
+        OutfitItemLink(outfit_id=db_outfit.id, item_id=item_id)
+        for item_id in outfit.item_ids
+    ]
+    session.add_all(new_links)
     session.commit()
-    session.refresh(db_outfit)
+
     return db_outfit
 
 
@@ -32,7 +39,9 @@ def read_outfit(outfit_id: int, session: Session = Depends(get_session)):
 
 
 @router.put("/{outfit_id}", response_model=OutfitRead)
-def update_outfit(outfit_id: int, outfit: OutfitUpdate, session: Session = Depends(get_session)):
+def update_outfit(
+    outfit_id: int, outfit: OutfitUpdate, session: Session = Depends(get_session)
+):
     db_outfit = session.get(Outfit, outfit_id)
     if not db_outfit:
         raise HTTPException(status_code=404, detail="Outfit not found")
@@ -41,6 +50,7 @@ def update_outfit(outfit_id: int, outfit: OutfitUpdate, session: Session = Depen
     session.commit()
     session.refresh(db_outfit)
     return db_outfit
+
 
 @router.delete("/{outfit_id}", response_model=OutfitRead)
 def delete_outfit(outfit_id: int, session: Session = Depends(get_session)):
@@ -51,8 +61,11 @@ def delete_outfit(outfit_id: int, session: Session = Depends(get_session)):
     session.commit()
     return outfit
 
+
 @router.post("/{outfit_id}/items/{item_id}", response_model=OutfitRead)
-def add_item_to_outfit(outfit_id: int, item_id: int, session: Session = Depends(get_session)):
+def add_item_to_outfit(
+    outfit_id: int, item_id: int, session: Session = Depends(get_session)
+):
     db_outfit = session.get(Outfit, outfit_id)
     if not db_outfit:
         raise HTTPException(status_code=404, detail="Outfit not found")
@@ -62,15 +75,20 @@ def add_item_to_outfit(outfit_id: int, item_id: int, session: Session = Depends(
         raise HTTPException(status_code=404, detail="Item not found")
 
     if db_item in db_outfit.items:
-        raise HTTPException(status_code=400, detail="Item is already associated with this outfit")
+        raise HTTPException(
+            status_code=400, detail="Item is already associated with this outfit"
+        )
 
     db_outfit.items.append(db_item)
     session.commit()
     session.refresh(db_outfit)
     return db_outfit
 
+
 @router.delete("/{outfit_id}/items/{item_id}", response_model=OutfitRead)
-def remove_item_from_outfit(outfit_id: int, item_id: int, session: Session = Depends(get_session)):
+def remove_item_from_outfit(
+    outfit_id: int, item_id: int, session: Session = Depends(get_session)
+):
     db_outfit = session.get(Outfit, outfit_id)
     if not db_outfit:
         raise HTTPException(status_code=404, detail="Outfit not found")
@@ -80,7 +98,9 @@ def remove_item_from_outfit(outfit_id: int, item_id: int, session: Session = Dep
         raise HTTPException(status_code=404, detail="Item not found")
 
     if db_item not in db_outfit.items:
-        raise HTTPException(status_code=400, detail="Item is not associated with this outfit")
+        raise HTTPException(
+            status_code=400, detail="Item is not associated with this outfit"
+        )
 
     db_outfit.items.remove(db_item)
     session.commit()

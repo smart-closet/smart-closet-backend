@@ -122,7 +122,7 @@ items = [
     ),
 ]
 
-outfits = [Outfit(name="Casual Outfit"), Outfit(name="Formal Outfit")]
+outfits = [Outfit(), Outfit()]
 
 # Link items to outfits
 item_outfit_links = [
