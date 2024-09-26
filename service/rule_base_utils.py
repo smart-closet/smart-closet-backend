@@ -1,6 +1,13 @@
-﻿# 天氣篩選
+﻿import csv
+import json
+import os
 
-import csv
+import google.generativeai as genai
+from dotenv import load_dotenv
+
+load_dotenv()
+api_key = os.getenv("API_KEY")
+df2_api_key = os.getenv("DF2_API_KEY")
 
 
 def load_subcategory_mapping():
@@ -375,3 +382,62 @@ def rule_base_filter(temperature, consider_weather=True, user_occation=None):
             )
 
     return candidate if len(candidate) == 1 else [candidate]
+
+
+def scenario_filter(user_scenario):
+    print("scenario_filter")
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel(
+        "gemini-1.5-flash-latest",
+        generation_config={"response_mime_type": "application/json"},
+    )
+
+    # define prompt
+    prompt = """Please consider the following scenario a user describe 
+    and pick the cloths that satisfy the scenario, please only list the satisfy clothes, materials, patterns, mixed_categories without more description, 
+    and output the answers as json format, where the keys are clothes, subcategories, patterns and the corresponding answer show place at the value :
+
+    subcategories = [
+        "t-shirt", "shirt", "dress-shirt", "button-up-shirt", "flannel-shirt", "sweater", 
+        "hoodie", "jacket", "coat", "trench-coat", "suit-jacket", "denim-jacket", 
+        "leather-jacket", "polo-shirt", "knit-top", "vest", "sweater-vest", "tank-top", 
+        "turtleneck", "dress", "skirt", "long-skirt", "pants", "jeans", "shorts", 
+        "suit-pants", "yoga-pants", "sweatpants", "overalls", "jumpsuit", "pajamas", 
+        "bathrobe", "cotton-pants", "wool-pants", "leggings", "windproof-pants", 
+        "cotton-vest", "down-jacket", "ski-jacket", "cotton-coat", "thermal-underwear", 
+        "padded-jacket", "winter-sportswear", "insulated-vest", "thick-jeans", 
+        "college-sweatshirt"
+    ]
+
+    material = [
+        'cotton', 'denim', 'chiffon', 'faux-fur', 'faux-leather',
+        'faux-suede', 'leather', 'linen', 'linen-blend', 'mesh',
+        'metallic', 'neoprene', 'nylon', 'organza', 'sateen',
+        'satin', 'suede', 'velvet', 'woven', 'thermal', 'crochet']
+    patterns = [
+        'abstract-print', 'animal', 'baroque', 'bird-print',
+        'botanical-print', 'camouflage', 'colorblock', 'dotted',
+        'floral', 'glitter', 'graphic', 'grid-print', 'leaf-print',
+        'leopard-print', 'marble-print', 'medallion-print',
+        'mixed-print', 'multi-stripe', 'ombre', 'ornate-print',
+        'paisley-print', 'palm-print', 'pattern', 'pleated',
+        'print', 'striped', 'tie-dye', 'zigzag']
+    mixed_categories = [
+        'boho', 'cargo', 'chic', 'cozy',
+        'cute', 'elegant', 'everyday', 'fancy', 'retro',
+        'safari', 'sporty', 'sweet', 'utility']
+
+
+
+    The given user sencario are:
+    reponse json format:
+    {
+        "subcategories": ["shirt", "pants", "jacket"],
+    }
+    """
+    # user_scenario = '我今天要報告希望看起來正式又專業'
+    response = model.generate_content(prompt + user_scenario)
+    gemini_results_test = json.loads(
+        response.text.replace("```json", "").replace("```", "")
+    )
+    return gemini_results_test
