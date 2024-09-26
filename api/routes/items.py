@@ -1,3 +1,4 @@
+import asyncio
 import time
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
@@ -13,14 +14,13 @@ from models import (
 )
 
 from db import get_session
-from service.item_utils import get_item_info, upload_image, split_image
+from service.item_utils import get_item_info, split_image, upload_images
+from concurrent.futures import ThreadPoolExecutor
 
 router = APIRouter()
 
 def print_time_taken(start, message):
     print(f"{message}: Time taken: {time.time() - start}")
-    start = time.time()
-
 
 # Item endpoints
 @router.post("/", response_model=List[ItemRead])
@@ -28,20 +28,31 @@ async def create_item(
     image: UploadFile = File(...),
     session: Session = Depends(get_session),
 ):
+    total_time_start = time.time()
+
     start = time.time()
     images = await split_image(image)
     print_time_taken(start, "Splitting image")
+
+    start = time.time()
+    loop = asyncio.get_event_loop()
+    with ThreadPoolExecutor() as executor:
+        image_urls_future = loop.run_in_executor(executor, lambda: asyncio.run(upload_images(images)))
+        item_infos_future = loop.run_in_executor(executor, lambda: asyncio.run(get_item_info(images, len(images))))
+
+        item_infos = await item_infos_future
+        image_urls = await image_urls_future
+    print_time_taken(start, "Getting item info & Uploading Images")
+
     items = []
-    item_infos = await get_item_info(images, len(images))
-    print_time_taken(start, "Getting item info")
+    start = time.time()
 
     for idx, image in enumerate(images):
         item_info = item_infos[idx]
-        image_url = await upload_image(image)
 
         db_item = Item(
             name=item_info["name"],
-            image_url=image_url,
+            image_url=image_urls[idx],
             category_id=item_info["category_id"],
             subcategory_id=item_info["subcategory_id"],
             description=item_info["description"],
@@ -54,11 +65,11 @@ async def create_item(
             ItemAttributeLink(item_id=db_item.id, attribute_id=attribute_id)
             for attribute_id in item_info["attribute_ids"]
         ]
-
         session.add_all(new_links)
-
     session.commit()
-    print(f"Time taken: {time.time() - start}")
+
+    print_time_taken(start, "Inserting items")
+    print(f"Time taken: {time.time() - total_time_start}")
     return items
 
 

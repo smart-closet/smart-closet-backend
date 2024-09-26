@@ -21,6 +21,7 @@ df2_api_key = os.getenv("DF2_API_KEY")
 
 async def get_item_info(images: list[UploadFile], item_count: int) -> dict:
     # 讀取 subcategory.csv 文件
+    print("start info")
     subcategories = []
     with open("tools/subcategory.csv", newline="") as csvfile:
         reader = csv.DictReader(csvfile)
@@ -58,21 +59,27 @@ Return the information in the following JSON format for {item_count} items:
     content.extend([Image.open(image.file) for image in images])
     response = model.generate_content(content)
     item_infos = json.loads(response.text)
+    print("end info")
     return item_infos
 
 
-async def upload_image(file: UploadFile) -> str:
+async def upload_images(files: list[UploadFile]) -> list[str]:
+    print("start image")
     bucket = storage.bucket()
-    blob = bucket.blob(f"items/{uuid.uuid4()}")
+    public_urls = []
+    for file in files:
+        blob = bucket.blob(f"items/{uuid.uuid4()}")
+        file.file.seek(0)
+        file = BytesIO(await file.read())
+        blob.upload_from_file(file, content_type="image/png")
+        blob.make_public()
+        public_urls.append(blob.public_url)
+    print("end image")
 
-    file.file.seek(0)
-    blob.upload_from_file(file.file, content_type="image/png")
-    blob.make_public()
-
-    return blob.public_url
+    return public_urls
 
 
-async def split_image(image: UploadFile) -> UploadFile:
+async def split_image(image: UploadFile) -> list[UploadFile]:
     def maximize_non_transparent_area(image):
         # 確保圖片是 RGBA 格式
         image = image.convert("RGBA")
