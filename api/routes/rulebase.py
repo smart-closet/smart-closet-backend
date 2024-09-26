@@ -5,7 +5,7 @@ from typing import List, Optional
 from sqlmodel import select
 from models import Item
 from db import get_session
-from service.rule_base_utils import load_subcategory_mapping, rule_base_filter
+from service.rule_base_utils import load_subcategory_mapping, rule_base_filter, scenario_filter
 from service.rank_utils import rank
 
 router = APIRouter()
@@ -17,6 +17,7 @@ class RuleBaseFilterRequest(BaseModel):
     user_occation: Optional[str] = None
     personal_temp: Optional[int] = 0
     item_id: Optional[int] = None
+    voice_occasion: Optional[str] = ""
 
 
 subcategory_mapping = load_subcategory_mapping()
@@ -27,11 +28,15 @@ def ruleBase_filter(
     request: RuleBaseFilterRequest,
     session: Session = Depends(get_session),
 ):
-    filter_criteria = rule_base_filter(
-        request.temperature,
-        request.consider_weather,
-        request.user_occation,
-    )[0]
+    filter_criteria = (
+        rule_base_filter(
+            request.temperature,
+            request.consider_weather,
+            request.user_occation,
+        )[0][0]
+        if len(request.voice_occasion) == 0
+        else scenario_filter(request.voice_occasion)
+    )
 
     # 將子類別名稱轉換為 ID
     subcategory_ids = [
