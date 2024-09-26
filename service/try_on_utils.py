@@ -1,18 +1,20 @@
 import os
+
 # import time
 from dotenv import load_dotenv
 import base64
 import aiohttp
 import requests
-from pydantic import AnyUrl
 
 load_dotenv()
 api_key = os.getenv("VIRTUAL_TRY_ON_API_KEY")
 api_url = "https://api.segmind.com/v1/idm-vton"
 
+
 async def send_request(data, api_url, api_key):
     try:
         async with aiohttp.ClientSession() as session:
+            print(api_key)
             async with session.post(
                 api_url, json=data, headers={"x-api-key": api_key}
             ) as response:
@@ -20,12 +22,13 @@ async def send_request(data, api_url, api_key):
                     content_type = response.headers.get("Content-Type")
                     if "image" in content_type:
                         image_data = await response.read()
-                        image_base64 = base64.b64encode(image_data)
-                        # image_binary = base64.b64decode(image_base64)
-                        # timestamp = 2345678
-                        # file_path = f"output_image_{timestamp}.jpg"
-                        # with open(file_path, "wb") as f:
-                        #     f.write(image_binary)
+                        image_base64 = base64.b64encode(image_data).decode("utf-8")
+
+                        image_binary = base64.b64decode(image_base64)
+                        timestamp = 2345678
+                        file_path = f"output_image_{timestamp}.jpg"
+                        with open(file_path, "wb") as f:
+                            f.write(image_binary)
 
                         return image_base64
                     else:
@@ -38,8 +41,9 @@ async def send_request(data, api_url, api_key):
     except aiohttp.ClientError as e:
         print(f"Request failed: {e}")
 
+
 # mode can be upper_body, lower_body and dresses
-def construct_data(human_url: AnyUrl, cloth_url: AnyUrl, mode="upper_body"):
+def construct_data(human_url: str, cloth_url: str, mode="upper_body"):
     human_url_str = str(human_url)
     cloth_url_str = str(cloth_url)
 
@@ -63,6 +67,6 @@ def construct_data(human_url: AnyUrl, cloth_url: AnyUrl, mode="upper_body"):
         "human_img": human_base64,
         "garm_img": cloth_base64,
         "mask_only": False,
-        "garment_des": "Green colour semi Formal Blazer"
+        "garment_des": "Green colour semi Formal Blazer",
     }
     return data

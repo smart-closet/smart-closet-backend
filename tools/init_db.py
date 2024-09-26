@@ -4,7 +4,16 @@ from sqlmodel import SQLModel, create_engine, Session, select
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from models import Attribute, Category, Item, MyImage, Outfit, Subcategory, ItemAttributeLink
+from models import (
+    Attribute,
+    Category,
+    Item,
+    MyImage,
+    Outfit,
+    OutfitItemLink,
+    Subcategory,
+    ItemAttributeLink,
+)
 import csv
 
 load_dotenv()
@@ -122,10 +131,17 @@ items = [
     ),
 ]
 
-outfits = [Outfit(), Outfit()]
+outfits = [
+    Outfit(),
+]
+
+item_outfit_links = [
+    OutfitItemLink(outfit_id=1, item_id=1),
+    OutfitItemLink(outfit_id=1, item_id=10),
+]
 
 # Link items to outfits
-item_outfit_links = [
+item_attribute_links = [
     ItemAttributeLink(item_id=1, attribute_id=3),
     ItemAttributeLink(item_id=2, attribute_id=3),
     ItemAttributeLink(item_id=3, attribute_id=3),
@@ -133,7 +149,10 @@ item_outfit_links = [
 ]
 
 my_images = [
-    MyImage(user_id=1, image_url="https://storage.googleapis.com/quiztory-f5e09.appspot.com/items/ff484702-3dc1-4f4a-a9ca-4474170c20cf"),
+    MyImage(
+        user_id=1,
+        image_url="https://storage.googleapis.com/quiztory-f5e09.appspot.com/items/ff484702-3dc1-4f4a-a9ca-4474170c20cf",
+    ),
 ]
 
 
@@ -153,6 +172,7 @@ def create_mock_data():
         session.commit()
 
         session.add_all(item_outfit_links)
+        session.add_all(item_attribute_links)
         session.commit()
 
 

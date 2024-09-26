@@ -16,8 +16,8 @@ router = APIRouter()
 async def create_my_image(
     image: UploadFile = File(...), session: Session = Depends(get_session)
 ):
-    image_url = upload_images([image])[0]
-    db_my_image = MyImage(user_id=1, image_url=image_url)
+    image_urls = await upload_images([image])
+    db_my_image = MyImage(user_id=1, image_url=image_urls[0])
     session.add(db_my_image)
     session.commit()
     session.refresh(db_my_image)
