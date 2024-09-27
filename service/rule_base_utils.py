@@ -381,7 +381,10 @@ def rule_base_filter(temperature, consider_weather=True, user_occation=None):
                 set(item) & set(occation_info["subcategories"])
             )
 
-    return candidate if len(candidate) == 1 else [candidate]
+    if type(candidate) is not list:
+        return [candidate]
+    else:
+        return candidate
 
 
 def scenario_filter(user_scenario):
