@@ -20,7 +20,6 @@ df2_api_key = os.getenv("DF2_API_KEY")
 
 
 async def get_item_info(images: list[UploadFile], item_count: int) -> dict:
-    # 讀取 subcategory.csv 文件
     print("start info")
     subcategories = []
     with open("tools/subcategory.csv", newline="") as csvfile:
@@ -39,26 +38,32 @@ async def get_item_info(images: list[UploadFile], item_count: int) -> dict:
     model = genai.GenerativeModel(
         "gemini-1.5-flash", generation_config={"response_mime_type": "application/json"}
     )
-    prompt = f"""response_mime_type: application/json
-Based on the image, analyze the clothing items and provide the following information in JSON format:
-1. give it a name based on the appearance of the clothing.
-1. Check the item is a top, bottom. Top return 1, bottom return 2.
-1. Pick a suitable subcategory from the following list: {', '.join(subcategories)} and return its index + 1.
-2. Describe the appearance, material, and texture of the clothing.
-3. Pick multiple attribute from the following list: {', '.join(attributes)} and return their index + 1.
+    prompt = f"""
 
-Return the information in the following JSON format for {item_count} items:
-{[{
-    "name": "Name of the clothing item",
-    "category_id": "Top(1) or Bottom(2)",
-    "subcategory_id": "Selected subcategory",
-    "description": "Detailed description of appearance, material, and texture",
-    "attribute_ids": ["attribute_id 1", "attribute_id 2", ...]
-}]}"""
+    Based on the image, analyze the clothing items and provide the following information in JSON format:
+    1. give it a name based on the appearance of the clothing.
+    2. Check the item is a top, bottom. Top return 1, bottom return 2.
+    3. Pick a suitable subcategory id base on the name and description from the following list: {', '.join(subcategories)} and return its order in the list count from 1.
+    4. Describe the appearance, material, and texture of the clothing.
+    5. Pick multiple attribute (top5) from the following list: {', '.join(attributes)} and return their index + 1.
+
+    Return the information in the following JSON format for {item_count} items:
+    {[{
+        "name": "Name of the clothing item",
+        "category_id": "Top(1) or Bottom(2)",
+        "subcategory_id": f"Pick a suitable subcategory id base on the name and description from the following list: {', '.join(subcategories)} and return its order in the list count from 1.",
+        "description": "Detailed description of appearance, material, and texture",
+        "attribute_ids": ["attribute_id 1", "attribute_id 2", ...]
+    }, ...]}
+
+    check twice for the subcategory_id and attribute_ids, make sure they are in the correct order and suitable with a the name and description.
+    """
+
     content = [prompt]
-    content.extend([Image.open(image.file) for image in images])
+    content.extend([Image.open(img.file) for img in images])
     response = model.generate_content(content)
     item_infos = json.loads(response.text)
+    print(item_infos)
     print("end info")
     return item_infos
 
