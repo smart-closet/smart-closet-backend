@@ -75,7 +75,7 @@ def weather_rule_Base(temperature, personal_temp=0):
             "sheer",
             "yoga-pants",
             "short-sleeve button-up shirt",
-            "short-sleeve flannel shirt",
+            "short-sleeve flannel-shirt",
         ],
         2: [
             "dress",
@@ -88,7 +88,8 @@ def weather_rule_Base(temperature, personal_temp=0):
             "suit-pants",
             "yoga-pants",
             "sheer",
-            "short-sleeve button-up shirt" "short-sleeve flannel shirt",
+            "short-sleeve button-up shirt",
+            "short-sleeve flannel-shirt",
         ],
         3: ["dress", "pants", "shorts", "suit-pants", "yoga-pants", "overalls"],
         4: ["long-sleeve button-up shirt", "hoodie", "long-sleeve-shirt"],
@@ -220,7 +221,7 @@ def occation_filter(user_occation):
             "long-sleeve flannel-shirt",
             "long-sleeve button-up shirt",
             "short-sleeve button-up shirt",
-            "short-sleeve flannel shirt",
+            "short-sleeve flannel-shirt",
             "pants",
             "jeans",
             "cotton-pants",
@@ -432,15 +433,11 @@ def scenario_filter(user_scenario):
 
 
 
-    The given user sencario are:
-    reponse json format:
-    {
-        "subcategories": ["shirt", "pants", "jacket"],
-    }
     """
     # user_scenario = '我今天要報告希望看起來正式又專業'
     response = model.generate_content(prompt + user_scenario)
     gemini_results_test = json.loads(
         response.text.replace("```json", "").replace("```", "")
     )
+    print(gemini_results_test)
     return gemini_results_test
