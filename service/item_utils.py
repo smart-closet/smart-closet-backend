@@ -57,6 +57,7 @@ async def get_item_info(images: list[UploadFile], item_count: int) -> dict:
     }, ...]}
 
     check twice for the subcategory_id and attribute_ids, make sure they are in the correct order and suitable with a the name and description.
+    be careful with jeans and skirt they are both bottoms but have different subcategory_id.
     """
 
     content = [prompt]
