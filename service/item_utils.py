@@ -118,7 +118,19 @@ async def split_image(image: UploadFile) -> list[UploadFile]:
     results = model.infer(cv_image, model_id="deepfashion2-m-10k/2")
     detections = sv.Detections.from_inference(results)
 
+    def calculate_mask_iou(mask1, mask2):
+        intersection = np.logical_and(mask1, mask2)
+        union = np.logical_or(mask1, mask2)
+        intersection_area = np.sum(intersection)
+        union_area = np.sum(union)
+        if union_area == 0:
+            return 0
+        
+        iou = intersection_area / union_area
+        return iou
+    
     items = []
+    items_mask = []
     for i, mask in enumerate(detections.mask):
         mask = mask.astype("uint8") * 255
         clean_clothing_region = cv2.bitwise_and(cv_image, cv_image, mask=mask)
@@ -145,6 +157,16 @@ async def split_image(image: UploadFile) -> list[UploadFile]:
         clean_clothing_region_pil.save(image_bytes, format="PNG")
         # clean_clothing_region_pil.save(f"clean_clothing_region_{i}.png")
         image_bytes.seek(0)
-        items.append(UploadFile(filename=f"{image.filename}_{i}", file=image_bytes))
+        #items.append(UploadFile(filename=f"{image.filename}_{i}", file=image_bytes))
+
+        # 避免超相似的 items
+        keep = True
+        for i, stored_mask in enumerate(items_mask):
+            iou = calculate_mask_iou(mask, stored_mask)
+            if iou > 0.7:
+                keep = False
+        if(keep):
+            items.append(UploadFile(filename=f"{image.filename}_{i}", file=image_bytes)) # 確定新增 item
+            items_mask.append(mask)
 
     return items
