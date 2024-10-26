@@ -5,7 +5,11 @@ from typing import List, Optional
 from sqlmodel import select
 from models import Item
 from db import get_session
-from service.rule_base_utils import load_subcategory_mapping, rule_base_filter, scenario_filter
+from service.rule_base_utils import (
+    get_rule_base_criteria,
+    get_scenario_criteria,
+    load_subcategory_mapping,
+)
 from service.rank_utils import rank
 
 router = APIRouter()
@@ -28,17 +32,12 @@ def ruleBase_filter(
     request: RuleBaseFilterRequest,
     session: Session = Depends(get_session),
 ):
-    filter_criteria = (
-        rule_base_filter(
-            request.temperature,
-            request.consider_weather,
-            request.user_occasion,
+    if len(request.voice_occasion) == 0:
+        filter_criteria = get_rule_base_criteria(
+            request.temperature, request.consider_weather, request.user_occasion
         )
-        if len(request.voice_occasion) == 0
-        else scenario_filter(request.voice_occasion)
-    )
-
-    print(filter_criteria)
+    else:
+        filter_criteria = get_scenario_criteria(request.voice_occasion)
 
     # 將子類別名稱轉換為 ID
     subcategory_ids = [
@@ -56,7 +55,6 @@ def ruleBase_filter(
         .where(Item.subcategory_id.in_(subcategory_ids))
     ).all()
 
-    # Refactored to filter items by category_id and handle item_id
     top, bottom = [
         [item.dict() for item in items if item.category_id == 1],
         [item.dict() for item in items if item.category_id == 2],
@@ -64,10 +62,7 @@ def ruleBase_filter(
 
     if request.item_id:
         selected_item: Item = session.get(Item, request.item_id).model_dump()
-        if selected_item["category_id"] == 1:
-            top = [selected_item]
-        elif selected_item["category_id"] == 2:
-            bottom = [selected_item]
+        locals()[["bottom", "top"][selected_item["category_id"] == 1]] = [selected_item]
 
     ranked_results = rank(top, bottom)
 

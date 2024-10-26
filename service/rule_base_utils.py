@@ -19,7 +19,7 @@ def load_subcategory_mapping():
     return subcategory_mapping
 
 
-def weather_rule_base(temperature, personal_temp=0):
+def rule_base_weather_criteria(temperature, personal_temp=0):
     body_temp = int(temperature - personal_temp)
 
     candidate_subcategories = []
@@ -42,7 +42,7 @@ def weather_rule_base(temperature, personal_temp=0):
         "leggings",
         "sweatpants",
     ]
-    
+
     # 不同等級的服裝種類
     subcategories = {
         1: [
@@ -108,7 +108,7 @@ def weather_rule_base(temperature, personal_temp=0):
             "college-sweatshirt",
         ],
     }
-    
+
     # 不同等級的外套
     outer_layer = {
         0: ["vest", "cotton-vest"],
@@ -124,7 +124,7 @@ def weather_rule_base(temperature, personal_temp=0):
         ],
         3: ["padded-jacket", "down-jacket", "ski-jacket", "winter-sportswear"],
     }
-    
+
     # 材質分為三種，透氣0，中性1，保暖2
     materials = {
         0: ["cotton", "linen", "linen-blend", "satin", "denim", "chiffon"],
@@ -137,7 +137,7 @@ def weather_rule_base(temperature, personal_temp=0):
         candidate_subcategories += list(set(subcategories[1] + subcategories[2]))
         final_recommend["material"].extend(materials[0])
         final_recommend["subcategories"].extend(candidate_subcategories)
-    
+
     # 如果是極端冷的情況 -> 材質選:保暖, 服裝種類選 7~8 度C, 建議洋蔥式穿搭
     elif body_temp <= 13:
         if body_temp <= 5:  # 霸王寒流級(建議洋蔥式穿搭)
@@ -170,14 +170,13 @@ def weather_rule_base(temperature, personal_temp=0):
             final_recommend["material"].extend(materials[2])  # 不確定要不要加
             final_recommend["subcategories"].extend(subcategories[8])
             final_recommend["outer_layer"].extend(outer_layer[2])
-    
+
     final_recommend["subcategories"].extend(all_temp_cloth)
-    
+
     return final_recommend
 
 
-# 場合篩選
-def occasion_filter(user_occasion):
+def rule_base_occasion_criteria(user_occasion):
     occasion_cloth_subcategory = {
         "Dating": [
             "long-skirt",
@@ -320,35 +319,35 @@ def occasion_filter(user_occasion):
     }
 
 
-def rule_base_filter(temperature, consider_weather=True, user_occasion=None):
+def get_rule_base_criteria(temperature, consider_weather=True, user_occasion=None):
     indoor_activity = ["Conference", "Prom", "Party", "Wedding_Guest"]
 
     # 如果只考量天氣不考慮環境
     if consider_weather is True and user_occasion is None:
-        candidate = weather_rule_base(temperature)
+        criteria = rule_base_weather_criteria(temperature)
 
     # 只考量場合不考慮天氣 (不想考慮 or 室內)
     elif (consider_weather is False and user_occasion != "None") or (
         user_occasion in indoor_activity
     ):
-        candidate = occasion_filter(user_occasion)
+        criteria = rule_base_occasion_criteria(user_occasion)
 
     # 考量天氣與場合
     else:
-        candidate = weather_rule_base(temperature)
-        occasion_info = occasion_filter(user_occasion)
-        
-        candidate["material"] = list(
-            set(candidate["material"]) & set(occasion_info["material"])
+        criteria = rule_base_weather_criteria(temperature)
+        occasion_criteria = rule_base_occasion_criteria(user_occasion)
+
+        criteria["material"] = list(
+            set(criteria["material"]) & set(occasion_criteria["material"])
         )
-        candidate["subcategories"] = list(
-            set(candidate["subcategories"]) & set(occasion_info["subcategories"])
+        criteria["subcategories"] = list(
+            set(criteria["subcategories"]) & set(occasion_criteria["subcategories"])
         )
 
-    return candidate
+    return criteria
 
 
-def scenario_filter(user_scenario):
+def get_scenario_criteria(user_scenario):
     print("scenario_filter")
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel(
@@ -356,7 +355,6 @@ def scenario_filter(user_scenario):
         generation_config={"response_mime_type": "application/json"},
     )
 
-    # define prompt
     prompt = """Please consider the following scenario a user describe 
     and pick the cloths that satisfy the scenario, please only list the satisfy clothes, materials, patterns, mixed_categories without more description, 
     and output the answers as json format, where the keys are clothes, subcategories, patterns and the corresponding answer show place at the value :
@@ -390,14 +388,9 @@ def scenario_filter(user_scenario):
         'boho', 'cargo', 'chic', 'cozy',
         'cute', 'elegant', 'everyday', 'fancy', 'retro',
         'safari', 'sporty', 'sweet', 'utility']
-
-
-
     """
+
     # user_scenario = '我今天要報告希望看起來正式又專業'
     response = model.generate_content(prompt + user_scenario)
-    gemini_results_test = json.loads(
-        response.text.replace("```json", "").replace("```", "")
-    )
-    print(gemini_results_test)
-    return gemini_results_test
+    criteria = json.loads(response.text.replace("```json", "").replace("```", ""))
+    return criteria
