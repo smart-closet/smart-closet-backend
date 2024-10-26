@@ -19,34 +19,15 @@ def load_subcategory_mapping():
     return subcategory_mapping
 
 
-def split_clothing_dict(data):
-    # Initialize list of dictionaries to hold the split data
-    split_data = []
-
-    # Loop over the indices to create separate dictionaries
-    for i in range(0, len(data["body_temp"])):
-        # Create a new dictionary for each temperature
-        temp_dict = {
-            "body_temp": data["body_temp"][i],
-            "material": data["material"][i],
-            "subcategories": data["subcategories"][i],
-            "outer_layer": data["outer_layer"][i],
-        }
-        split_data.append(temp_dict)
-
-    return split_data
-
-
 def weather_rule_base(temperature, personal_temp=0):
     body_temp = int(temperature - personal_temp)
 
-    candidate_cloth_type = []
+    candidate_subcategories = []
     final_recommend = {
-        "body_temp": [],
+        "body_temp": body_temp,
         "material": [],
         "subcategories": [],
         "outer_layer": [],
-        "Note": [],
     }
 
     # 所有溫度皆適合的服飾 及和溫度無關的材質(花紋)
@@ -61,7 +42,9 @@ def weather_rule_base(temperature, personal_temp=0):
         "leggings",
         "sweatpants",
     ]
-    clothe_type = {
+    
+    # 不同等級的服裝種類
+    subcategories = {
         1: [
             "tank-top",
             "dress",
@@ -143,7 +126,7 @@ def weather_rule_base(temperature, personal_temp=0):
     }
     
     # 材質分為三種，透氣0，中性1，保暖2
-    fabric_type = {
+    materials = {
         0: ["cotton", "linen", "linen-blend", "satin", "denim", "chiffon"],
         1: ["cotton", "knit", "nylon", "faux-suede", "chiffon"],
         2: ["velvet", "cotton", "woven", "crochet", "faux-fur", "faux-leather"],
@@ -151,57 +134,45 @@ def weather_rule_base(temperature, personal_temp=0):
 
     # 如果是極端熱的情況 -> 材質選:透氣，服裝種類選:1度C
     if body_temp >= 27:
-        candidate_cloth_type += list(set(clothe_type[1] + clothe_type[2]))
-        final_recommend["body_temp"].append(body_temp)
-        final_recommend["material"].extend(fabric_type[0])
-        final_recommend["subcategories"].extend(candidate_cloth_type)
+        candidate_subcategories += list(set(subcategories[1] + subcategories[2]))
+        final_recommend["material"].extend(materials[0])
+        final_recommend["subcategories"].extend(candidate_subcategories)
     
     # 如果是極端冷的情況 -> 材質選:保暖, 服裝種類選 7~8 度C, 建議洋蔥式穿搭
     elif body_temp <= 13:
         if body_temp <= 5:  # 霸王寒流級(建議洋蔥式穿搭)
-            candidate_cloth_type += list(set(clothe_type[7] + clothe_type[8]))
+            candidate_subcategories += list(set(subcategories[7] + subcategories[8]))
             final_recommend["outer_layer"].extend(outer_layer[3])
-            final_recommend["Note"].append("thermal-underwear")
         else:  # 小冬天
-            candidate_cloth_type += list(set(clothe_type[6] + clothe_type[7]))
+            candidate_subcategories += list(set(subcategories[6] + subcategories[7]))
             final_recommend["outer_layer"].extend(outer_layer[2])
 
-        final_recommend["body_temp"].append(body_temp)
-        final_recommend["material"].extend(fabric_type[2])
-        final_recommend["subcategories"].extend(candidate_cloth_type)
+        final_recommend["material"].extend(materials[2])
+        final_recommend["subcategories"].extend(candidate_subcategories)
 
     # 正常情況
     else:
         # 比較偏熱的情況下(22~26)，材質的選擇於0-2度C,間度1度C
-        temp_rang = [body_temp + 2, body_temp, body_temp - 2]
-        for temp in temp_rang:
-            final_recommend["body_temp"].append(temp)
-            target = max(1, min(25 - temp, 5))
-            if temp >= 26:
-                final_recommend["material"].append(fabric_type[0])
-                final_recommend["subcategories"].append(clothe_type[1])
-                final_recommend["outer_layer"].append([])
-            elif temp >= 21:  # 類型適合[1,2,3]
-                final_recommend["material"].append(fabric_type[0])
-                final_recommend["subcategories"].append(clothe_type[target])
-                final_recommend["outer_layer"].append(outer_layer[0])
-            elif temp >= 14:
-                final_recommend["material"].append(fabric_type[2])  # 不確定要不要加0
-                final_recommend["subcategories"].append(clothe_type[target])
-                final_recommend["outer_layer"].append(outer_layer[1])
-            else:
-                final_recommend["material"].append(fabric_type[2])  # 不確定要不要加
-                final_recommend["subcategories"].append(clothe_type[8])
-                final_recommend["outer_layer"].append(outer_layer[2])
-
-    if len(final_recommend["body_temp"]) >= 2:
-        # print("ok")
-        for i in final_recommend["subcategories"]:
-            i.extend(all_temp_cloth)
-        final_recommend = split_clothing_dict(final_recommend)
-    else:
-        final_recommend["subcategories"].extend(all_temp_cloth)
-        final_recommend = [final_recommend]
+        target = max(1, min(25 - body_temp, 5))
+        if body_temp >= 26:
+            final_recommend["material"].extend(materials[0])
+            final_recommend["subcategories"].extend(subcategories[1])
+            final_recommend["outer_layer"].extend([])
+        elif body_temp >= 21:  # 類型適合[1,2,3]
+            final_recommend["material"].extend(materials[0])
+            final_recommend["subcategories"].extend(subcategories[target])
+            final_recommend["outer_layer"].extend(outer_layer[0])
+        elif body_temp >= 14:
+            final_recommend["material"].extend(materials[2])  # 不確定要不要加0
+            final_recommend["subcategories"].extend(subcategories[target])
+            final_recommend["outer_layer"].extend(outer_layer[1])
+        else:
+            final_recommend["material"].extend(materials[2])  # 不確定要不要加
+            final_recommend["subcategories"].extend(subcategories[8])
+            final_recommend["outer_layer"].extend(outer_layer[2])
+    
+    final_recommend["subcategories"].extend(all_temp_cloth)
+    
     return final_recommend
 
 
@@ -366,18 +337,15 @@ def rule_base_filter(temperature, consider_weather=True, user_occasion=None):
     else:
         candidate = weather_rule_base(temperature)
         occasion_info = occasion_filter(user_occasion)
-        for i in range(0, len(candidate)):
-            candidate[i]["material"] = list(
-                set(candidate[i]["material"]) & set(occasion_info["material"])
-            )
-            candidate[i]["subcategories"] = list(
-                set(candidate[i]["subcategories"]) & set(occasion_info["subcategories"])
-            )
+        
+        candidate["material"] = list(
+            set(candidate["material"]) & set(occasion_info["material"])
+        )
+        candidate["subcategories"] = list(
+            set(candidate["subcategories"]) & set(occasion_info["subcategories"])
+        )
 
-    if type(candidate) is not list:
-        return [candidate]
-    else:
-        return candidate
+    return candidate
 
 
 def scenario_filter(user_scenario):

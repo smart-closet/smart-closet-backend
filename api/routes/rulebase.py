@@ -33,10 +33,12 @@ def ruleBase_filter(
             request.temperature,
             request.consider_weather,
             request.user_occasion,
-        )[0]
+        )
         if len(request.voice_occasion) == 0
         else scenario_filter(request.voice_occasion)
     )
+
+    print(filter_criteria)
 
     # 將子類別名稱轉換為 ID
     subcategory_ids = [
