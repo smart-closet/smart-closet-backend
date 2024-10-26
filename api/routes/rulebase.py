@@ -62,7 +62,10 @@ def ruleBase_filter(
 
     if request.item_id:
         selected_item: Item = session.get(Item, request.item_id).model_dump()
-        locals()[["bottom", "top"][selected_item["category_id"] == 1]] = [selected_item]
+        if selected_item["category_id"] == 1:
+            top = [selected_item]
+        elif selected_item["category_id"] == 2:
+            bottom = [selected_item]
 
     ranked_results = rank(top, bottom)
 
