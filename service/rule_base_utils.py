@@ -204,14 +204,7 @@ def weather_rule_base(temperature, personal_temp=0):
 
 # 場合篩選
 def occasion_filter(user_occasion):
-    data = {
-        "occasion": [],
-        "pattern": [],
-        "material": [],
-        "subcategories": [],
-        "戶外與否": [],
-    }
-    occasion_cloth_type = {
+    occasion_cloth_subcategory = {
         "Dating": [
             "long-skirt",
             "dress",
@@ -277,7 +270,7 @@ def occasion_filter(user_occasion):
             "suit-jacket",
         ],
     }
-    occasion_cloth_texture = {
+    occasion_cloth_material = {
         "Dating": [
             "chiffon",
             "leather",
@@ -306,7 +299,7 @@ def occasion_filter(user_occasion):
         "School": ["leather", "cotton", "denim", "woven"],
         "Wedding_Guest": ["cotton", "leather", "chiffon"],
     }
-    occasion_cloth_Fabric = {
+    occasion_cloth_pattern = {
         "Dating": [
             "print",
             "pleated",
@@ -345,28 +338,24 @@ def occasion_filter(user_occasion):
         ],
     }
 
-    indoor_activity = ["Conference", "Prom", "Party", "Wedding_Guest"]
-    outdoor = False
-
-    if user_occasion not in indoor_activity:
-        outdoor = True
-    data["occasion"] = user_occasion
-    data["pattern"] = occasion_cloth_Fabric[user_occasion]
-    data["subcategories"] = occasion_cloth_type[user_occasion]
-    data["material"] = occasion_cloth_texture[user_occasion]
-    data["戶外與否"] = outdoor
-
-    return data
+    return {
+        "occasion": user_occasion,
+        "subcategories": occasion_cloth_subcategory[user_occasion],
+        "material": occasion_cloth_material[user_occasion],
+        "pattern": occasion_cloth_pattern[user_occasion],
+    }
 
 
 def rule_base_filter(temperature, consider_weather=True, user_occasion=None):
+    indoor_activity = ["Conference", "Prom", "Party", "Wedding_Guest"]
+
     # 如果只考量天氣不考慮環境
     if consider_weather is True and user_occasion is None:
         candidate = weather_rule_base(temperature)
 
     # 只考量場合不考慮天氣 (不想考慮 or 室內)
     elif (consider_weather is False and user_occasion != "None") or (
-        occasion_filter(user_occasion)["戶外與否"] is False
+        user_occasion in indoor_activity
     ):
         candidate = occasion_filter(user_occasion)
 
