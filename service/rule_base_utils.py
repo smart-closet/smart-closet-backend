@@ -125,6 +125,7 @@ def weather_rule_base(temperature, personal_temp=0):
             "college-sweatshirt",
         ],
     }
+    
     # 不同等級的外套
     outer_layer = {
         0: ["vest", "cotton-vest"],
@@ -140,6 +141,7 @@ def weather_rule_base(temperature, personal_temp=0):
         ],
         3: ["padded-jacket", "down-jacket", "ski-jacket", "winter-sportswear"],
     }
+    
     # 材質分為三種，透氣0，中性1，保暖2
     fabric_type = {
         0: ["cotton", "linen", "linen-blend", "satin", "denim", "chiffon"],
@@ -153,6 +155,7 @@ def weather_rule_base(temperature, personal_temp=0):
         final_recommend["body_temp"].append(body_temp)
         final_recommend["material"].extend(fabric_type[0])
         final_recommend["subcategories"].extend(candidate_cloth_type)
+    
     # 如果是極端冷的情況 -> 材質選:保暖, 服裝種類選 7~8 度C, 建議洋蔥式穿搭
     elif body_temp <= 13:
         if body_temp <= 5:  # 霸王寒流級(建議洋蔥式穿搭)
@@ -364,11 +367,11 @@ def rule_base_filter(temperature, consider_weather=True, user_occasion=None):
         candidate = weather_rule_base(temperature)
         occasion_info = occasion_filter(user_occasion)
         for i in range(0, len(candidate)):
-            item = candidate[i]["material"]
-            candidate[i]["material"] = list(set(item) & set(occasion_info["material"]))
-            item = candidate[i]["subcategories"]
+            candidate[i]["material"] = list(
+                set(candidate[i]["material"]) & set(occasion_info["material"])
+            )
             candidate[i]["subcategories"] = list(
-                set(item) & set(occasion_info["subcategories"])
+                set(candidate[i]["subcategories"]) & set(occasion_info["subcategories"])
             )
 
     if type(candidate) is not list:
