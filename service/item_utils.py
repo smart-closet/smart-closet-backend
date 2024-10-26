@@ -36,7 +36,7 @@ async def get_item_info(images: list[UploadFile], item_count: int) -> dict:
     # 使用 Gemini API 進行圖片分析
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel(
-        "gemini-1.5-flash", generation_config={"response_mime_type": "application/json"}
+        "gemini-1.5-pro", generation_config={"response_mime_type": "application/json"}
     )
     prompt = f"""
 
@@ -51,7 +51,7 @@ async def get_item_info(images: list[UploadFile], item_count: int) -> dict:
     {[{
         "name": "Name of the clothing item",
         "category_id": "Top(1) or Bottom(2)",
-        "subcategory_id": f"Pick a suitable subcategory id base on the name and description from the following list: {', '.join(subcategories)} and return its order in the list count from 1.",
+        "subcategory_id": f"Pick a suitable subcategory id base on the image and these subcategories from the following list: {', '.join(subcategories)} and return its order in the list count from 1.",
         "description": "Detailed description of appearance, material, and texture",
         "attribute_ids": ["attribute_id 1", "attribute_id 2", ...]
     }, ...]}
