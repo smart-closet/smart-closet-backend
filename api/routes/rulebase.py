@@ -14,7 +14,7 @@ router = APIRouter()
 class RuleBaseFilterRequest(BaseModel):
     temperature: float
     consider_weather: bool = True
-    user_occation: Optional[str] = None
+    user_occasion: Optional[str] = None
     personal_temp: Optional[int] = 0
     item_id: Optional[int] = None
     voice_occasion: Optional[str] = ""
@@ -32,7 +32,7 @@ def ruleBase_filter(
         rule_base_filter(
             request.temperature,
             request.consider_weather,
-            request.user_occation,
+            request.user_occasion,
         )[0]
         if len(request.voice_occasion) == 0
         else scenario_filter(request.voice_occasion)
