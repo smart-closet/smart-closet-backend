@@ -8,7 +8,7 @@ from db import get_session
 from service.rule_base_utils import (
     get_rule_base_criteria,
     get_scenario_criteria,
-    load_subcategory_mapping,
+    get_subcategory_ids,
 )
 from service.rank_utils import rank
 
@@ -24,9 +24,6 @@ class RuleBaseFilterRequest(BaseModel):
     voice_occasion: Optional[str] = ""
 
 
-subcategory_mapping = load_subcategory_mapping()
-
-
 @router.post("/", response_model=List[dict])
 def ruleBase_filter(
     request: RuleBaseFilterRequest,
@@ -39,14 +36,8 @@ def ruleBase_filter(
     else:
         filter_criteria = get_scenario_criteria(request.voice_occasion)
 
-    # 將子類別名稱轉換為 ID
-    subcategory_ids = [
-        id
-        for id in [
-            subcategory_mapping.get(name) for name in filter_criteria["subcategories"]
-        ]
-        if id is not None
-    ]
+    subcategory_ids = get_subcategory_ids(filter_criteria)
+    
 
     # 查詢符合條件的項目
     items = session.exec(

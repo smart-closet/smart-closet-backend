@@ -10,13 +10,22 @@ api_key = os.getenv("API_KEY")
 df2_api_key = os.getenv("DF2_API_KEY")
 
 
-def load_subcategory_mapping():
+def get_subcategory_ids(filter_criteria):
     subcategory_mapping = {}
     with open("tools/subcategory.csv", newline="") as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             subcategory_mapping[row["value"]] = int(row["id"])
-    return subcategory_mapping
+
+    subcategory_ids = [
+        id
+        for id in [
+            subcategory_mapping.get(name) for name in filter_criteria["subcategories"]
+        ]
+        if id is not None
+    ]
+
+    return subcategory_ids
 
 
 def rule_base_weather_criteria(temperature, personal_temp=0):
@@ -261,7 +270,7 @@ def rule_base_occasion_criteria(user_occasion):
         "Daily_Work_and_Conference": ["denim", "cotton"],
         "Travel": ["chiffon", "cotton", "denim", "cotton-pants"],
         "Sports": ["cotton", "Nylon"],
-        "Prom": ["leather", "chiffon", "cutton", "velvet"],
+        "Prom": ["leather", "chiffon", "cotton", "velvet"],
         "Shopping": [
             "leather",
             "denim",
