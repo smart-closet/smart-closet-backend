@@ -8,17 +8,20 @@ import requests
 import base64
 import time
 from transformers import BertTokenizer, BertModel
+from service.img2tag import img2vec, vec2score, score2tag
 import __main__
 
 
 def rank(top_list, bottom_list):
     try:
         results = []
+        imgs = [] # for style tag
 
         for top_item in top_list:
             for bottom_item in bottom_list:
                 top_url = top_item["image_url"]
                 bottom_url = bottom_item["image_url"]
+                imgs.append([top_url, bottom_url]) # for style tag
 
                 # 生成描述
                 if (top_item["description"] is None) or (
@@ -40,6 +43,18 @@ def rank(top_list, bottom_list):
                 # 將結果加入結果列表
                 result = {"top": top_item, "bottom": bottom_item, "score": scores[0]}
                 results.append(result)
+
+        # imgs to tags
+        vecs = img2vec(imgs)
+        style_scores = vec2score(vecs)
+        tags = score2tag(style_scores)
+
+        # put tags in results
+        if len(results) == len(tags):
+            results = [
+                {**result, "tag": tag}
+                for result, tag in zip(results, tags)
+            ]
 
         # 根據分數由大到小排序結果
         results.sort(key=lambda x: x["score"], reverse=True)
