@@ -65,6 +65,8 @@ items = [
         category_id=1,
         subcategory_id=7,  # hoodie
         description="This hoodie is made of 100% cotton and features a unique inside-out design.",
+        color="#303231",  # 用戶看到的顏色
+        save_color="#211816",  # 用於顏色篩選的所保存的顏色
     ),
     Item(
         name="FUTURE ARCHIVE / FADE SWEAT CREW",
@@ -72,6 +74,8 @@ items = [
         category_id=1,
         subcategory_id=47,  # long-sleeve-shirt
         description="This sweatshirt is made of 100% cotton and features a unique fade design.",
+        color="#c3b5ab",  # 你可以新增顏色
+        save_color="#d2b3ae",  # 你可以新增保存的顏色
     ),
     Item(
         name="FUTURE ARCHIVE / SWITH DENIM HOODY",
@@ -79,6 +83,8 @@ items = [
         category_id=1,
         subcategory_id=7,  # hoodie
         description="This denim hoodie is made of 100% cotton and features a unique switch design.",
+        color="#303231",  # 用戶看到的顏色
+        save_color="#211816",  # 你可以新增保存的顏色
     ),
     Item(
         name="Moisture-wicking Tech Polo Shirt",
@@ -86,6 +92,8 @@ items = [
         category_id=1,
         subcategory_id=1,  # polo-shirt
         description="This polo shirt is made of moisture-wicking fabric and features a classic design.",
+        color="#37322f",  # 你可以新增顏色
+        save_color="#221916",  # 你可以新增保存的顏色
     ),
     Item(
         name="NEEDLES / H.D. PANT - MILITARY",
@@ -93,6 +101,8 @@ items = [
         category_id=2,
         subcategory_id=23,  # pants
         description="These military pants are made of 100% cotton and feature a relaxed fit.",
+        color="#c3a685",  # 你可以新增顏色
+        save_color="#947f62",  # 你可以新增保存的顏色
     ),
     Item(
         name="Dickies × FUTURE ARCHIVE / 別注 BAGGY PANTS",
@@ -100,6 +110,8 @@ items = [
         category_id=2,
         subcategory_id=23,  # pants
         description="These baggy pants are made of 100% cotton and feature a relaxed fit.",
+        color="#303231",  # 你可以新增顏色
+        save_color="#93cc9e",  # 你可以新增保存的顏色
     ),
     Item(
         name="FUTURE ARCHIVE / CHEMICAL SWEAT PANTS",
@@ -107,6 +119,8 @@ items = [
         category_id=2,
         subcategory_id=28,  # sweatpants
         description="These sweatpants are made of 100% cotton and feature a unique chemical design.",
+        color="#726357",  # 你可以新增顏色
+        save_color="#937f61",  # 你可以新增保存的顏色
     ),
     Item(
         name="FUTURE ARCHIVE / BAGGY FIT DENIM",
@@ -114,6 +128,8 @@ items = [
         category_id=2,
         subcategory_id=24,  # jeans
         description="These baggy fit denim jeans are made of 100% cotton and feature a relaxed fit.",
+        color="#6d6b64",  # 你可以新增顏色
+        save_color="#947f62",  # 你可以新增保存的顏色
     ),
     Item(
         name="PURPLE LABEL / 女裝 蜂巢格 網眼布 短裙",
@@ -121,6 +137,8 @@ items = [
         category_id=2,
         subcategory_id=21,  # skirt
         description="This skirt is made of 100% cotton and features a unique honeycomb design.",
+        color="#303231",  # 你可以新增顏色
+        save_color="#211816",  # 你可以新增保存的顏色
     ),
     Item(
         name="BEAMS HEART / 女裝 起皺 襯衫式 上衣",
@@ -128,6 +146,8 @@ items = [
         category_id=1,
         subcategory_id=3,  # dress-shirt
         description="This dress shirt is made of 100% cotton and features a unique wrinkled design.",
+        color="#c8ccdb",  # 你可以新增顏色
+        save_color="#b1b2b6",  # 你可以新增保存的顏色
     ),
 ]
 

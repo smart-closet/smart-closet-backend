@@ -11,3 +11,4 @@ aiohttp
 inference_sdk
 supervision
 google.generativeai
+scikit-learn
