@@ -11,4 +11,6 @@ aiohttp
 inference_sdk
 supervision
 google.generativeai
-scikit-learn
+torchvision
+joblib
+scikit-learn==1.5.1
