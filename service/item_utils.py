@@ -12,7 +12,7 @@ from PIL import Image
 from inference_sdk import InferenceHTTPClient
 import supervision as sv
 import google.generativeai as genai
-
+from api.models.Color_FSM_model import identify_color
 
 load_dotenv()
 api_key = os.getenv("API_KEY")
@@ -62,8 +62,16 @@ async def get_item_info(images: list[UploadFile], item_count: int) -> dict:
 
     content = [prompt]
     content.extend([Image.open(img.file) for img in images])
+    color_info = [identify_color(Image.open(img.file)) for img in images]
+    print(color_info)
     response = model.generate_content(content)
+
     item_infos = json.loads(response.text)
+    k = 0
+    for item in item_infos:
+        item["color"] = color_info[k][0]
+        item["save_color"]= color_info[k][1]
+        k+=1
     print(item_infos)
     print("end info")
     return item_infos

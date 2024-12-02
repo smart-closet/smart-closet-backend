@@ -3,6 +3,9 @@ import time
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 from typing import List
+from PIL import Image
+import numpy as np
+
 from sqlmodel import select
 from models import (
     Item,
@@ -16,6 +19,7 @@ from models import (
 from db import get_session
 from service.item_utils import get_item_info, split_image, upload_images
 from concurrent.futures import ThreadPoolExecutor
+from api.models.Color_FSM_model import identify_color
 
 router = APIRouter()
 
@@ -56,6 +60,8 @@ async def create_item(
             category_id=item_info["category_id"],
             subcategory_id=item_info["subcategory_id"],
             description=item_info["description"],
+            color = item_info["color"],
+            save_color = item_info["save_color"]
         )
         session.add(db_item)
         session.flush()

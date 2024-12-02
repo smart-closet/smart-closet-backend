@@ -47,16 +47,36 @@ def construct_data(human_url: str, cloth_url: str, mode="upper_body"):
     human_url_str = str(human_url)
     cloth_url_str = str(cloth_url)
 
-    if human_url_str.startswith("http://") or human_url_str.startswith("https://"):
-        response_human = requests.get(human_url_str)
-        response_human.raise_for_status()
-        human_base64 = base64.b64encode(response_human.content).decode("utf-8")
-    else:
-        human_base64 = human_url_str
+    try:
+        # 處理 human_url
+        if human_url_str.startswith("http://") or human_url_str.startswith("https://"):
+            response_human = requests.get(human_url_str)
+            response_human.raise_for_status()  # 這將引發 HTTPError
+            if not response_human.content:
+                raise ValueError("Human image content is empty.")
 
-    response_cloth = requests.get(cloth_url_str)
-    response_cloth.raise_for_status()
-    cloth_base64 = base64.b64encode(response_cloth.content).decode("utf-8")
+            human_base64 = base64.b64encode(response_human.content).decode("utf-8")
+        else:
+            human_base64 = human_url_str
+
+        # 處理 cloth_url
+        if cloth_url_str.startswith("http://") or cloth_url_str.startswith("https://"):
+            response_cloth = requests.get(cloth_url_str)
+            response_cloth.raise_for_status()
+            if not response_cloth.content:
+                raise ValueError("Cloth image content is empty.")
+
+            cloth_base64 = base64.b64encode(response_cloth.content).decode("utf-8")
+        else:
+            cloth_base64 = cloth_url_str
+
+        # 確保 base64 資料不為 None
+        if human_base64 is None or cloth_base64 is None:
+            raise ValueError("Failed to encode images as base64 strings.")
+
+    except requests.RequestException as e:
+        print(f"Error fetching image from URL: {e}")
+        return None  # 或者返回一個錯誤信息
 
     data = {
         "crop": False,

@@ -96,6 +96,8 @@ class ItemBase(SQLModel):
     category_id: int = Field(..., foreign_key="category.id")
     subcategory_id: Optional[int] = Field(default=None, foreign_key="subcategory.id")
     description: Optional[str] = None
+    color: Optional[str] = None
+    save_color: Optional[str] = None
 
 
 class Item(ItemBase, table=True):
