@@ -9,8 +9,6 @@ from models import (
     Category,
     Item,
     MyImage,
-    Outfit,
-    OutfitItemLink,
     Subcategory,
     ItemAttributeLink,
 )
@@ -96,15 +94,6 @@ items = [
         save_color="#221916",  # 你可以新增保存的顏色
     ),
     Item(
-        name="NEEDLES / H.D. PANT - MILITARY",
-        image_url="https://cdn.beams.co.jp/img/goods/11241682334/L/11241682334_C_1.jpg",
-        category_id=2,
-        subcategory_id=23,  # pants
-        description="These military pants are made of 100% cotton and feature a relaxed fit.",
-        color="#c3a685",  # 你可以新增顏色
-        save_color="#947f62",  # 你可以新增保存的顏色
-    ),
-    Item(
         name="Dickies × FUTURE ARCHIVE / 別注 BAGGY PANTS",
         image_url="https://cdn.beams.co.jp/img/goods/11241388995/L/11241388995_C_3.jpg",
         category_id=2,
@@ -114,13 +103,11 @@ items = [
         save_color="#93cc9e",  # 你可以新增保存的顏色
     ),
     Item(
-        name="FUTURE ARCHIVE / CHEMICAL SWEAT PANTS",
-        image_url="https://cdn.beams.co.jp/img/goods/11241748146/L/11241748146_C_2.jpg",
+        name="NEEDLES / Piping Cowboy Pant - Double Cloth",
+        image_url="https://cdn.beams.co.jp/img/goods/11241683334/O/11241683334_D_3.jpg",
         category_id=2,
         subcategory_id=28,  # sweatpants
         description="These sweatpants are made of 100% cotton and feature a unique chemical design.",
-        color="#726357",  # 你可以新增顏色
-        save_color="#937f61",  # 你可以新增保存的顏色
     ),
     Item(
         name="FUTURE ARCHIVE / BAGGY FIT DENIM",
@@ -132,32 +119,98 @@ items = [
         save_color="#947f62",  # 你可以新增保存的顏色
     ),
     Item(
-        name="PURPLE LABEL / 女裝 蜂巢格 網眼布 短裙",
-        image_url="https://cdn.beams.co.jp/img/goods/85270027551/L/85270027551_D_13.jpg",
+        name="BEAMS HEART / 女裝 寬版打褶 丹寧 長裙",
+        image_url="https://cdn.beams.co.jp/img/goods/43270116408/O/43270116408_D_15.jpg",
         category_id=2,
         subcategory_id=21,  # skirt
         description="This skirt is made of 100% cotton and features a unique honeycomb design.",
         color="#303231",  # 你可以新增顏色
         save_color="#211816",  # 你可以新增保存的顏色
     ),
-    Item(
-        name="BEAMS HEART / 女裝 起皺 襯衫式 上衣",
-        image_url="https://cdn.beams.co.jp/img/goods/43110101819/L/43110101819_C_2.jpg",
-        category_id=1,
-        subcategory_id=3,  # dress-shirt
-        description="This dress shirt is made of 100% cotton and features a unique wrinkled design.",
-        color="#c8ccdb",  # 你可以新增顏色
-        save_color="#b1b2b6",  # 你可以新增保存的顏色
-    ),
-]
-
-outfits = [
-    Outfit(),
-]
-
-item_outfit_links = [
-    OutfitItemLink(outfit_id=1, item_id=1),
-    OutfitItemLink(outfit_id=1, item_id=10),
+    # Item(
+    #     name="BEAMS HEART / 男裝 輕量 羅馬布 素面 襯衫",
+    #     image_url="https://cdn.beams.co.jp/img/goods/41110064458/O/41110064458_D_10.jpg",
+    #     category_id=1,
+    #     subcategory_id=3,  # dress-shirt
+    #     description="This dress shirt is made of 100% cotton and features a unique wrinkled design.",
+    # ),
+    # Item(
+    #     name="BEAMS HEART / 男裝 可水洗 方平組織 二扣 西裝外套",
+    #     image_url="https://cdn.beams.co.jp/img/goods/41160071195/O/41160071195_D_12.jpg",
+    #     category_id=1,
+    #     subcategory_id=11,  # suit-jacket
+    #     description="This suit jacket is made of 100% cotton and features a unique wrinkled design.",
+    # ),
+    # Item(
+    #     name="BEAMS HEART / 男裝 針頭狀花紋 TRAVEL 西裝 長褲",
+    #     image_url="https://cdn.beams.co.jp/img/goods/41230066195/O/41230066195_D_19.jpg",
+    #     category_id=2,
+    #     subcategory_id=26,  # suit-pants
+    #     description="These suit pants are made of 100% cotton and feature a unique wrinkled design.",
+    # ),
+    # Item(
+    #     name="毛衣",
+    #     image_url="https://cdn.beams.co.jp/img/goods/12130149803/O/12130149803_D_1.jpg",
+    #     category_id=1,
+    #     subcategory_id=6,  # sweater
+    #     description="This sweater is made of 100% cotton and features a unique wrinkled design.",
+    # ),
+    # Item(
+    #     name="粉色短裙",
+    #     image_url="https://static.zara.net/assets/public/cb88/4996/03f14531a8f4/7c8f77eaac02/03152532621-e1/03152532621-e1.jpg?ts=1722596049527&w=850",
+    #     category_id=2,
+    #     subcategory_id=21,  # skirt
+    #     description="This skirt is made of 100% cotton and features a unique wrinkled design.",
+    # ),
+    # Item(
+    #     name="白色中長裙",
+    #     image_url="https://static.zara.net/assets/public/8bec/0a70/13524c1f91a4/1fe2a365c82f/02298933712-e1/02298933712-e1.jpg?ts=1729165038480&w=850",
+    #     category_id=2,
+    #     subcategory_id=21,  # skirt
+    #     description="This skirt is made of 100% cotton and features a unique wrinkled design.",
+    # ),
+    # Item(
+    #     name="白色短裙",
+    #     image_url="https://static.zara.net/assets/public/2691/c834/9484462482aa/3c5e51404c34/05536064250-e2/05536064250-e2.jpg?ts=1719303046584&w=850",
+    #     category_id=2,
+    #     subcategory_id=21,  # skirt
+    #     description="This skirt is made of 100% cotton and features a unique wrinkled design.",
+    # ),
+    # Item(
+    #     name="牛奶中腰長裙",
+    #     image_url="https://static.zara.net/assets/public/624f/2f2b/26474773a35d/47861c3deff5/03607292400-e1/03607292400-e1.jpg?ts=1722929165357&w=850",
+    #     category_id=2,
+    #     subcategory_id=21,  # skirt
+    #     description="This skirt is made of 100% cotton and features a unique wrinkled design.",
+    # ),
+    # Item(
+    #     name="灰色運動衫",
+    #     image_url="https://static.zara.net/assets/public/88aa/5803/3eb449c1b5b7/6a2e42355e20/03253318803-e1/03253318803-e1.jpg?ts=1719324485865&w=850",
+    #     category_id=1,
+    #     subcategory_id=1,
+    #     description="This long-sleeve shirt is made of 100% cotton and features a unique wrinkled design.",
+    # ),
+    # Item(
+    #     name="灰色運動褲",
+    #     image_url="https://static.zara.net/assets/public/f216/b1c6/0c2a48b283f6/ccb60506f218/03253319803-e1/03253319803-e1.jpg?ts=1719324849550&w=850",
+    #     category_id=2,
+    #     subcategory_id=25,
+    #     description="This long-sleeve shirt is made of 100% cotton and features a unique wrinkled design.",
+    # ),
+    # Item(
+    #     name="白色短版背心",
+    #     image_url="https://static.zara.net/assets/public/35fb/1690/22214375afdc/b30da1e12a6f/05644457250-e1/05644457250-e1.jpg?ts=1720693679026&w=850",
+    #     category_id=1,
+    #     subcategory_id=18,
+    #     description="this tank top is made of 100% cotton and features a unique wrinkled design.",
+    # ),
+    # Item(
+    #     name="藍色短版背心",
+    #     image_url="https://static.zara.net/assets/public/fb26/2bd8/a9e440fe80bb/2a54d5aaae57/04174313420-e1/04174313420-e1.jpg?ts=1719326096149&w=850",
+    #     category_id=1,
+    #     subcategory_id=18,
+    #     description="this tank top is made of 100% cotton and features a unique wrinkled design.",
+    # ),
 ]
 
 # Link items to outfits
@@ -187,11 +240,9 @@ def create_mock_data():
         session.add_all(subcategories)
         session.add_all(attributes)
         session.add_all(items)
-        session.add_all(outfits)
         session.add_all(my_images)
         session.commit()
 
-        session.add_all(item_outfit_links)
         session.add_all(item_attribute_links)
         session.commit()
 
