@@ -14,6 +14,9 @@ import __main__
 
 def rank(top_list, bottom_list):
     try:
+        if len(top_list) == 0 or len(bottom_list) == 0:
+            return []
+
         results = []
         imgs = [] # for style tag
 
